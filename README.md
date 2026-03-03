@@ -16,8 +16,10 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 
 ## Get a copy of the base code
 For the purpose of this Workshop, the code is located in this S3 Bucket:
-``
-``
+
+```bash 
+aws-terraform-workshop
+```
 
 Copy it to the EC2 running this command:
 
@@ -26,6 +28,19 @@ Copy it to the EC2 running this command:
 And then unzip the file:
 
 ````
+
+### Repo structure
+
+```
+.
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── versions.tf
+├── provider.tf
+└── lambda
+    └── handler.py
+```
 
 # Terraform 101
 
@@ -101,30 +116,6 @@ Add the ``-auto-approve`` option:
 ```
 
 
-## Format the code nicely
-
-## Ways to set values to the variables
-
-### variables.tf
-
-### terraform.tfvars 
-
-
-### Execution time through the terminal 
-
-
-## Validations
-
-
-
-## More advanced concepts
-
-See TERRAFORM.md
-
-
-
-
-
 # Application 
 
 ## First deployment
@@ -140,4 +131,15 @@ See TERRAFORM.md
 
 
 ## Storing the results in an Amazon S3 Bucket 
+
+
+
+
+
+
+## More advanced Terraform concepts
+
+See TERRAFORM.md
+
+
 
