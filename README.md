@@ -4,6 +4,10 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 
 # Application
 
+This small application calculates a GO/NO GO for launching a -----------
+
+<img src="img/architecture.png">
+
 
 
 # Set up your environment 
@@ -245,6 +249,7 @@ We'll add an Event Bridge schedule that will execute the function every 5 minute
 Open the `main.tf` file and add this block:
 
 ```hcl 
+
 
 ```
 
