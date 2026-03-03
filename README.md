@@ -159,7 +159,7 @@ Add the ``-auto-approve`` option:
 
 The code base is setup to deploy a Lambda function called launch-window.
 
-Once the _apply_ completes, go to the AWS Console --> Lambda --> Functions and find your Lambda. 
+Once the `apply` completes, go to the `AWS Console --> Lambda --> Functions` and find your Lambda. 
 
 Create a new Test Event.
 
@@ -168,10 +168,29 @@ And execute the function.
 
 ## Storing the results in an Amazon S3 Bucket 
 
-Open the file terraform --> lambda --> handler.py file and add the following piece:
+Open the file `terraform --> lambda --> handler.py` file and add the following piece:
 
 
 ```python 
+```
+
+Now open the main.tf file and add this blocks:
+
+```hcl 
+    # -----------------------------
+    # S3 bucket for audit artifacts
+    # -----------------------------
+    resource "aws_s3_bucket" "artifacts" {
+    bucket = lower("${local.name_prefix}-artifacts")
+    tags   = local.tags
+    }
+
+    resource "aws_s3_bucket_versioning" "artifacts" {
+        bucket = aws_s3_bucket.artifacts.id
+        versioning_configuration {
+            status = "Enabled"
+        }
+    }
 ```
 
 Save the changes and re-deploy the solution:
@@ -180,18 +199,23 @@ Save the changes and re-deploy the solution:
     terraform apply -auto-approve
 ```
 
-Wait until it completes, go back to the Console, verify the changes are there, and re-test the function.
+Wait until it completes, go back to the Console, verify the changes are there:
+* A new S3 bucket has been created
+* The Lambda code contains the new block 
+ 
+Re-test the function.
+
 
 It fails.
 
 
-## Why it failed: add the permissions needed to the IAM Role
+## Why it failed
 
 It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
 AWS follows the principle of least privilege: every resource (user, bucket, function, etc.) has no 
 permissions to invoke another or perform changes. Any action must be allowed in its Role.
 
-Go to the Terraform repo and open the file terraform --> main.tf 
+Go to the Terraform repo and open the file `terraform --> main.tf` 
 
 Find the resource ``aws_iam_policy`` ``lambda_policy`` and add this block of code:
 
@@ -218,7 +242,7 @@ The solution works great, but it requires a person to execute it on demand.
 
 We'll add an Event Bridge schedule that will execute the function every 5 minutes.
 
-Open the ``main.tf`` file and add this block:
+Open the `main.tf` file and add this block:
 
 ```hcl 
 
@@ -235,7 +259,7 @@ Save the changes and re-deploy:
 
  You can wait for the 5 mins to pass.
 
- One way to validate the Lambda has been executed is looking at ``CloudWatch logs``:
+ One way to validate the Lambda has been executed is looking at `CloudWatch logs`:
 
 
 
@@ -246,10 +270,23 @@ Now let's add a notification when the Lambda finishes, sending the results to an
 
 
 
-Open the ``main.tf`` file and add this block:
+Open the `main.tf` file and add this block:
 
 ```hcl 
+    # -----------------------------
+    # SNS Topic
+    # -----------------------------
+    resource "aws_sns_topic" "done" {
+        name = "${local.name_prefix}-done"
+        tags = local.tags
+    }
 
+    # Email subscriptions (require confirmation by clicking link in email)    
+    resource "aws_sns_topic_subscription" "done_email" {
+        topic_arn = aws_sns_topic.done.arn
+        protocol  = "email"
+        endpoint  = var.done_email
+    }
 ```
 
 Save the changes and re-deploy:
