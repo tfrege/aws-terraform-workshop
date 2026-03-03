@@ -6,19 +6,65 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 
 
 
-# Clone the repo
+# Set up your environment 
+
+## Login to the AWS Console 
 
 
+## Start a session in the EC2 instance 
+
+
+## Get a copy of the base code
+For the purpose of this Workshop, the code is located in this S3 Bucket:
+``
+``
+
+Copy it to the EC2 running this command:
+
+````
+
+And then unzip the file:
+
+````
 
 # Terraform 101
 
+## Key components of any TF deployment 
+
+* main file
+
+* provider 
+* variables
+* output
+* data 
+* locals 
+
+
+
 ## initialize terraform
+
+```bash 
+    terraform init
+```
 
 ## validate the code 
 
+```bash 
+    terraform validate
+```
+
 ## plan the deployment
 
+```bash 
+    terraform plan
+```
+
 ## deploy the code
+
+```bash 
+    terraform apply
+```
+
 
 ## Verify in the AWS Console
 
@@ -28,7 +74,34 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 
 ## Modifying the deployment
 
+
+```bash 
+    terraform apply
+```
+
 ## Destroying the deployment 
+
+```bash 
+    terraform destroy
+```
+
+Which is the equivalent of:
+
+
+```bash 
+    terraform apply -destroy
+```
+
+## Apply or destroy without waiting for confirmation
+Add the ``-auto-approve`` option:
+
+
+```bash 
+    terraform apply -auto-approve
+```
+
+
+## Format the code nicely
 
 ## Ways to set values to the variables
 
@@ -41,6 +114,15 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 
 
 ## Validations
+
+
+
+## More advanced concepts
+
+See TERRAFORM.md
+
+
+
 
 
 # Application 
