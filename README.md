@@ -87,11 +87,15 @@ And then unzip the file:
 
 ## initialize terraform
 
+The `terraform init` command initializes a working directory containing configuration files and installs plugins for required providers.
+
 ```bash 
     terraform init
 ```
 
 ## validate the code 
+
+The terraform validate command validates the configuration files in a directory. It does not validate remote services, such as remote state or provider APIs.
 
 ```bash 
     terraform validate
@@ -99,11 +103,15 @@ And then unzip the file:
 
 ## plan the deployment
 
+The `terraform plan` command creates an execution plan with a preview of the changes that Terraform will make to your infrastructure.
+
 ```bash 
     terraform plan
 ```
 
 ## deploy the code
+
+The `terraform apply` command executes the actions proposed in a Terraform plan to create, update, or destroy infrastructure.
 
 ```bash 
     terraform apply
@@ -113,7 +121,6 @@ Type `yes` when asked for confirmation and wait for the code to deploy.
 
 
 ## Verify in the AWS Console
-
 
 Go to the AWS Console and search for the Lambda function.
 
@@ -130,6 +137,7 @@ Before applying any change, run a plan to verify that only the name will be chan
     terraform plan
 ```
 
+And if everything looks good, apply the changes:
 
 ```bash 
     terraform apply
@@ -221,12 +229,43 @@ permissions to invoke another or perform changes. Any action must be allowed in 
 
 Go to the Terraform repo and open the file `terraform --> main.tf` 
 
-Find the resource ``aws_iam_policy`` ``lambda_policy`` and add this block of code:
+Find the block ``data "aws_iam_policy_document" "lambda_policy"`` and add this block of code:
 
 
-```json 
-
+```hcl 
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:PutObject"
+    ]
+    resources = ["${aws_s3_bucket.artifacts.arn}/*"]
+  }
 ```
+
+The entire block should look like:
+
+```hcl 
+    data "aws_iam_policy_document" "lambda_policy" {
+        statement {
+            effect = "Allow"
+            actions = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+            ]
+            resources = ["*"]
+        }
+
+        statement {
+            effect = "Allow"
+            actions = [
+            "s3:PutObject"
+            ]
+            resources = ["${aws_s3_bucket.artifacts.arn}/*"]
+        }
+    }
+```
+
 
 Save the changes and re-deploy:
 
@@ -293,6 +332,41 @@ Open the `main.tf` file and add this block:
         endpoint  = var.done_email
     }
 ```
+
+
+Also, let's make sure the Lambda will have the required permissions to publish messages to this new topics.
+In the block ``data "aws_iam_policy_document" "lambda_policy"``:
+
+```hcl 
+    data "aws_iam_policy_document" "lambda_policy" {
+        statement {
+            effect = "Allow"
+            actions = [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+            ]
+            resources = ["*"]
+        }
+
+        statement {
+            effect = "Allow"
+            actions = [
+            "s3:PutObject"
+            ]
+            resources = ["${aws_s3_bucket.artifacts.arn}/*"]
+        }
+
+        statement {
+            effect = "Allow"
+            actions = [
+            "sns:Publish"
+            ]
+            resources = [aws_sns_topic.done.arn]
+        }
+    }
+```
+
 
 Save the changes and re-deploy:
 
