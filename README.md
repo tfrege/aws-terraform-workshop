@@ -188,7 +188,7 @@ Wait until it completes, go back to the Console, verify the changes are there:
 Re-test the function.
 
 
-* :x: It fails *
+*:x: It fails*
 
 
 ## Why it failed
