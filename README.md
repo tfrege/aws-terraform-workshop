@@ -105,14 +105,26 @@ And then unzip the file:
     terraform apply
 ```
 
+Type `yes` when asked for confirmation and wait for the code to deploy.
+
 
 ## Verify in the AWS Console
 
+
+Go to the AWS Console and search for the Lambda function.
 
 
 # Terraform 102
 
 ## Modifying the deployment
+
+Go back to the ``main.tf`` file and change the name of your function.
+
+Before applying any change, run a plan to verify that only the name will be changed:
+
+```bash 
+    terraform plan
+```
 
 
 ```bash 

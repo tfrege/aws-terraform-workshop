@@ -4,22 +4,32 @@
 ## Format the code nicely
 
 
+```bash 
+    terraform fmt -recursive
+```
+
 
 ## Ways to set values to the variables
 
 ### variables.tf
+Set default values in each variable definition.
 
 
 ### Execution time through the terminal 
 
+Overwrite any default value while executing the code (variables with no default set will be requested at run time):
+
+```bash 
+    terraform apply -var="lambda_name=my-launch-fn" -var="bucket=my-bucket-name"
+```
 
 ### terraform.tfvars 
 
 It's a good practice to leave specific values out of the variables.tf
 
 ```hcl
-aws_region   = "us-east-1"
-project_name = "launch-window-demo"
+lambda_name   = "my-launch-fn"
+bucket        = "lmy-bucket-name"
 
 ingest_email = "YOUR_EMAIL@example.com"
 done_email   = "YOUR_EMAIL@example.com"
@@ -40,6 +50,10 @@ range_allowed        = "GREEN"
 
 
 ## Validations
+
+Validations are good practice. You can validate the values your variables are taking:
+
+
 
 
 ## Modules
