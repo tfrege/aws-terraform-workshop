@@ -188,7 +188,7 @@ Wait until it completes, go back to the Console, verify the changes are there:
 Re-test the function.
 
 
-*:x: It fails*
+:x: It fails
 
 
 ## Why it failed
@@ -432,7 +432,7 @@ Inside the definition of the Lambda function (`resource "aws_lambda_function" "l
 
 ## More advanced Terraform concepts
 
-See TERRAFORM.md
+See [TERRAFORM.md]
 
 
 
