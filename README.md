@@ -55,33 +55,6 @@ And then unzip the file:
 
 # Terraform 101
 
-## Key components of any TF deployment 
-
-* main.tf
-  This is where the resources will be specified.
-
-* provider 
-  This tells Terraform where it will deploy the resources (i.e. AWS Account, Azure, GCP, etc.) and the 
-  permissions it requires.
-
-* variables
-  This file specifies the variables the resources will need (i.e. the name of a bucket). 
-
-* outputs
-  Optional: it lists key information about the resources provisioned.
-
-
-* data 
-  Optional: useful to recover information of existing resources, such as:
-  - The AWS Account ID 
-  - The selected region 
-  - The partition (aws or aws-us-gov)
-  - Resources that already exist and that will be needed for the new ones (i.e. VPC ID if you're creating a Subnet)
-
-* locals 
-  Optional: blocks of code to perform calculations and create new variables.
-
-
 ## initialize terraform
 
 The `terraform init` command initializes a working directory containing configuration files and installs plugins for required providers.
