@@ -48,6 +48,11 @@ range_allowed        = "GREEN"
 ```
 
 
+## Tagging Resources
+
+Tag, always tag. Each AWS resource supports up to 50 {key, value} tags.
+
+
 
 ## Validations
 
@@ -142,5 +147,6 @@ Terraform supports remote backends such as S3.
 ## Scanning Tools
 
 ### checkov
+
 
 

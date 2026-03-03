@@ -48,9 +48,6 @@ And then unzip the file:
 ```
 .
 ├── main.tf
-├── variables.tf
-├── outputs.tf
-├── versions.tf
 ├── provider.tf
 └── lambda
     └── handler.py
@@ -375,7 +372,89 @@ Save the changes and re-deploy:
     terraform apply -auto-approve
 ```
 
+## Remove all hardcoded values and turn them into variables
 
+Hardcoded values are always bad practice.
+
+Create a file named `variables.tf` and copy this code:
+
+```hcl 
+
+variable "mission" {
+  description = "Mission name included in the scheduled payload"
+  type        = string
+  default     = "DEMO-1"
+}
+
+variable "launch_site" {
+  description = "Launch site identifier included in the scheduled payload"
+  type        = string
+  default     = "KSC"
+}
+
+variable "vehicle" {
+  description = "Vehicle identifier included in the scheduled payload"
+  type        = string
+  default     = "LV-A"
+}
+
+variable "max_wind_kts" {
+  description = "Maximum allowable wind speed (knots) for GO decision"
+  type        = number
+  default     = 20
+}
+
+variable "min_cloud_ceiling_ft" {
+  description = "Minimum allowable cloud ceiling (feet) for GO decision"
+  type        = number
+  default     = 2500
+}
+
+variable "lightning_allowed" {
+  description = "Whether lightning risk is allowed for GO decision"
+  type        = bool
+  default     = false
+}
+
+variable "range_allowed" {
+  description = "Allowed range status for GO decision (GREEN only in this workshop)"
+  type        = string
+  default     = "GREEN"
+}
+
+
+variable "done_email" {
+  description = "Email address to subscribe to completion SNS topic (requires confirmation)"
+  type        = string
+  default     = "your@email.com"
+}
+
+variable "schedule_expression" {
+  description = "EventBridge schedule expression (e.g., rate(5 minutes) or cron(...))"
+  type        = string
+  default     = "rate(5 minutes)"
+}
+```
+
+
+Now we'll replace all our hardcoded values for these variables in `main.tf`:
+
+Inside the definition of the Lambda function (`resource "aws_lambda_function" "launch_eval"`):
+
+```hcl 
+  environment {
+    variables = {
+      ARTIFACT_BUCKET          = aws_s3_bucket.artifacts.bucket
+      DONE_TOPIC_ARN           = aws_sns_topic.done.arn
+      MAX_WIND_KTS             = tostring(var.max_wind_kts)
+      MIN_CLOUD_CEILING_FT     = tostring(var.min_cloud_ceiling_ft)
+      LIGHTNING_ALLOWED        = tostring(var.false)
+      RANGE_ALLOWED            = var.range_allowed
+      ARTIFACT_PREFIX          = "launch-window"
+    }
+  }
+
+```
 
 
 ## More advanced Terraform concepts

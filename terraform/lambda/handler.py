@@ -5,12 +5,6 @@ from datetime import datetime, timezone, timedelta
 
 import boto3
 
-s3 = boto3.client("s3")
-sns = boto3.client("sns")
-
-ARTIFACT_BUCKET = os.environ["ARTIFACT_BUCKET"]
-DONE_TOPIC_ARN = os.environ["DONE_TOPIC_ARN"]
-ARTIFACT_PREFIX = os.environ.get("ARTIFACT_PREFIX", "launch-window")
 
 MAX_WIND_KTS = float(os.environ.get("MAX_WIND_KTS", "20"))
 MIN_CLOUD_CEILING_FT = float(os.environ.get("MIN_CLOUD_CEILING_FT", "2500"))
@@ -58,11 +52,6 @@ def _evaluate(constraints: dict):
     decision = "GO" if not reasons else "NO-GO"
     return decision, reasons
 
-def _artifact_key(run_dt: datetime, mission: str):
-    # launch-window/YYYY/MM/DD/HHMMSSZ/mission=<mission>/launch_window_report.json
-    ts_folder = run_dt.strftime("%Y/%m/%d/%H%M%SZ")
-    safe_mission = "".join(c if c.isalnum() or c in "-_." else "_" for c in mission)
-    return f"{ARTIFACT_PREFIX}/{ts_folder}/mission={safe_mission}/launch_window_report.json"
 
 def lambda_handler(event, context):
     """
@@ -107,44 +96,13 @@ def lambda_handler(event, context):
             "reasons": reasons,
         }
 
-        key = _artifact_key(run_dt, mission)
-        s3.put_object(
-            Bucket=ARTIFACT_BUCKET,
-            Key=key,
-            Body=json.dumps(report, indent=2).encode("utf-8"),
-            ContentType="application/json",
-        )
-
-        subject = f"Launch Window Check Complete — {mission}"
-        body_lines = [
-            f"Decision: {decision}",
-            f"Mission: {mission}",
-            f"Site: {launch_site}",
-            f"Vehicle: {vehicle}",
-            f"Wind: {constraints['wind_speed_kts']} kts (max {MAX_WIND_KTS})",
-            f"Cloud ceiling: {constraints['cloud_ceiling_ft']} ft (min {MIN_CLOUD_CEILING_FT})",
-            f"Lightning risk: {constraints['lightning_risk']} (allowed {LIGHTNING_ALLOWED})",
-            f"Range status: {constraints['range_status']} (allowed {RANGE_ALLOWED})",
-        ]
         if reasons:
-            body_lines.append("")
-            body_lines.append("NO-GO reasons:")
-            body_lines.extend([f"- {r}" for r in reasons])
+            print("It's a NO GO!")
+            for r in reasons:
+                print(r)
 
-        body_lines.append("")
-        body_lines.append(f"Report written to: s3://{ARTIFACT_BUCKET}/{key}")
-
-        sns.publish(
-            TopicArn=DONE_TOPIC_ARN,
-            Subject=subject,
-            Message="\n".join(body_lines),
-        )
-        published += 1
-
-        print(json.dumps({"status": "ok", "decision": decision, "s3_key": key}))
+        print(json.dumps({"status": "ok", "decision": decision}))
 
     return {
-        "processed_records": processed,
-        "published_notifications": published,
-        "artifact_bucket": ARTIFACT_BUCKET,
+        "processed_records": processed
     }
