@@ -432,7 +432,7 @@ Inside the definition of the Lambda function (`resource "aws_lambda_function" "l
 
 ## More advanced Terraform concepts
 
-See [TERRAFORM.md]
+See [TERRAFORM.md](TERRAFORM.md)
 
 
 
