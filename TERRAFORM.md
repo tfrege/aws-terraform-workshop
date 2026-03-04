@@ -1,5 +1,24 @@
 # Terraform 200
 
+- [Terraform 200](#terraform-200)
+  - [Format the code nicely](#format-the-code-nicely)
+  - [Ways to set values to the variables](#ways-to-set-values-to-the-variables)
+    - [variables.tf](#variablestf)
+    - [Execution time through the terminal](#execution-time-through-the-terminal)
+    - [terraform.tfvars](#terraformtfvars)
+  - [Tagging Resources](#tagging-resources)
+  - [Validations](#validations)
+  - [Modules](#modules)
+  - [Outputs](#outputs)
+  - [Functions](#functions)
+  - [Loops](#loops)
+  - [data and locals](#data-and-locals)
+  - [Environments](#environments)
+  - [Backend configuration](#backend-configuration)
+  - [Useful add-ons](#useful-add-ons)
+    - [checkov](#checkov)
+    - [terraform-docs](#terraform-docs)
+
 
 ## Format the code nicely
 
@@ -248,17 +267,13 @@ For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
 
 
 | Function | Description | Example |
-|----------|-------------|---------|
+------------ | :-----------: | -----------: |
 | Strings |
 | `format(spec, values...)` | Formats string using printf-style syntax | `format("Hello, %s!", "World")` → `"Hello, World!"` |
-| `join(separator, list)` | Joins list elements with separator | `join(", ", ["a", "b"])` → `"a, b"` |
 | `lower(string)` | Converts string to lowercase | `lower("HELLO")` → `"hello"` |
 | `regex(pattern, string)` | Matches regex pattern in string | `regex("[a-z]+", "abc123")` → `"abc"` |
 | `replace(string, search, replace)` | Replaces occurrences in string | `replace("hello", "l", "L")` → `"heLLo"` |
-| `split(separator, string)` | Splits string into list | `split(",", "a,b,c")` → `["a", "b", "c"]` |
 | `substr(string, offset, length)` | Extracts substring | `substr("hello", 1, 3)` → `"ell"` |
-| `title(string)` | Converts to title case | `title("hello world")` → `"Hello World"` |
-| `trim(string, chars)` | Removes characters from start/end | `trim("?hello?", "?")` → `"hello"` |
 | `upper(string)` | Converts string to uppercase | `upper("hello")` → `"HELLO"` |
 | Numeric |
 | `ceil(number)` | Rounds up to nearest integer | `ceil(4.3)` → `5` |
@@ -266,7 +281,6 @@ For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
 | `min(numbers...)` | Returns minimum value | `min(5, 12, 9)` → `5` |
 | Collections |
 | `flatten(list)` | Flattens nested lists | `flatten([[1,2], [3,4]])` → `[1,2,3,4]` |
-| `index(list, value)` | Returns index of value in list | `index([1,2,3], 2)` → `1` |
 | `sort(list)` | Sorts list alphabetically | `sort(["c", "a", "b"])` → `["a", "b", "c"]` |
 | `sum(list)` | Sums numeric list | `sum([1, 2, 3])` → `6` |
 | Date and time |
