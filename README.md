@@ -1,6 +1,32 @@
 # aws-terraform-workshop
 Workshop to learn the basics of AWS and Terraform while deploying a small serverless application.
 
+- [aws-terraform-workshop](#aws-terraform-workshop)
+- [The application we'll build](#the-application-well-build)
+- [Set up your environment](#set-up-your-environment)
+  - [Login to the AWS Console](#login-to-the-aws-console)
+  - [Start a session in the EC2 instance](#start-a-session-in-the-ec2-instance)
+  - [Install Terraform](#install-terraform)
+  - [Get a copy of the base code](#get-a-copy-of-the-base-code)
+- [Terraform 101](#terraform-101)
+  - [initialize terraform](#initialize-terraform)
+  - [validate the code](#validate-the-code)
+  - [plan the deployment](#plan-the-deployment)
+  - [deploy the code](#deploy-the-code)
+  - [Verify in the AWS Console](#verify-in-the-aws-console)
+- [Terraform 102](#terraform-102)
+  - [Modifying the deployment](#modifying-the-deployment)
+  - [Destroying the deployment](#destroying-the-deployment)
+  - [Apply or destroy without waiting for confirmation](#apply-or-destroy-without-waiting-for-confirmation)
+- [Application](#application)
+  - [First deployment](#first-deployment)
+  - [Storing the results in an Amazon S3 Bucket](#storing-the-results-in-an-amazon-s3-bucket)
+  - [Why it failed](#why-it-failed)
+  - [Automating the execution of the Lambda function with EventBridge](#automating-the-execution-of-the-lambda-function-with-eventbridge)
+  - [Notifying the users when the execution completes](#notifying-the-users-when-the-execution-completes)
+  - [Remove all hardcoded values and turn them into variables](#remove-all-hardcoded-values-and-turn-them-into-variables)
+  - [Advanced Terraform concepts](#advanced-terraform-concepts)
+
 
 # The application we'll build
 
@@ -47,7 +73,7 @@ And then unzip the file:
     unzip workshopsrc.zip .
 ```
 
-### Repo structure
+*Repo structure*
 
 ```
 .
