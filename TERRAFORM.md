@@ -1,5 +1,6 @@
 Terraform 200
 
+- [Providers](#providers)
 - [Format the code nicely](#format-the-code-nicely)
 - [Ways to set values to the variables](#ways-to-set-values-to-the-variables)
   - [variables.tf](#variablestf)
@@ -17,6 +18,93 @@ Terraform 200
 - [Useful add-ons](#useful-add-ons)
   - [checkov](#checkov)
   - [terraform-docs](#terraform-docs)
+
+
+# Providers
+A provider ise a plugin that acts as a bridge between the core Terraform application and the APIs of various cloud providers, SaaS services, and other platforms.
+
+Every Terraform project needs at least 1 provider defined.
+
+Most basic declaration:
+```hcl
+# The provider will inherit the IAM Role used by the EC2 instance. That role must have all the required permissions for the Terraform code to work.
+provider "aws" {
+  region = "us-west-2"
+}
+```
+
+
+
+
+Specifying the way to authenticate into the AWS Account:
+```hcl
+# Specifying an IAM Role:
+provider "aws" {
+  region = "us-west-2"
+  assume_role {
+    role_arn = "<ROLE_ARN_HERE>"
+  }
+}
+
+# Specifying IAM user keys (not recommended):
+provider "aws" {
+  region = "us-west-2"
+  access_key = "my-access-key"
+  secret_key = "my-secret-key"
+}
+
+# Specifying an IAM Role and Region defined as variables:
+provider "aws" {
+  region = var.aws_region
+  assume_role {
+    role_arn = var.aws_role_arn
+  }
+}
+```
+
+
+
+Specifying multiple providers:
+```hcl
+provider "aws" {
+  alias = "aws_dev_account"
+  region = var.aws_region
+  assume_role {
+    role_arn = var.aws_role_arn_dev_account
+  }
+}
+
+provider "aws" {
+  alias = "aws_qa_account"
+  region = var.aws_region
+  assume_role {
+    role_arn = var.aws_role_arn_qa_account
+  }
+}
+
+# And when provisioning resources:
+resource "aws_lambda_function" "launch_eval" {
+  provider      = aws.aws_qa_account
+  function_name = "${local.project_name}-launch-eval"
+  role          = aws_iam_role.lambda_role.arn
+}
+```
+
+Specifying multiple providers for different Cloud Platforms:
+```hcl
+provider "aws" {
+  region = var.aws_region
+  assume_role {
+    role_arn = var.aws_role_arn_qa_account
+  }
+}
+
+provider "google" {
+  project = "your-gcp-project-id" 
+  region  = "us-central1"         
+  zone    = "us-central1-c"       
+}
+```
 
 
 # Format the code nicely
@@ -441,6 +529,20 @@ if multiple developers are running the same code.
 Solution: Remote Backend.
 
 Terraform supports remote backends such as S3.
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "your-unique-terraform-state-bucket"
+    key            = "path/to/your/environment/terraform.tfstate"
+    region         = "us-east-1"
+    # Optional: Enable server-side encryption
+    encrypt        = true
+    # Optional: For state locking, specify a DynamoDB table
+    dynamodb_table = "your-terraform-locks"
+  }
+}
+```
 
 
 # Useful add-ons
