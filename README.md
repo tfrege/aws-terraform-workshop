@@ -21,6 +21,7 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
   - [Notifying the users when the execution completes](#notifying-the-users-when-the-execution-completes)
   - [Remove all hardcoded values and turn them into variables](#remove-all-hardcoded-values-and-turn-them-into-variables)
 - [More Terraform concepts](#more-terraform-concepts)
+- [Automating deployments with GitHub and GitLab](#automating-deployments-with-github-and-gitlab)
 
 
  The application we'll build
@@ -51,7 +52,7 @@ Once inside the instance, make sure you are in the $HOME directory:
 
 # Install Terraform
 
-See [INSTALL.md](INSTALL.md)
+See [INSTALL.md](./doc/INSTALL.md)
 
 
 
@@ -617,7 +618,10 @@ Inside the definition of the Lambda function (`resource "aws_lambda_function" "l
 
 # More Terraform concepts
 
-See [TERRAFORM.md](TERRAFORM.md)
+See [TERRAFORM.md](./doc/TERRAFORM.md)
+
+
+# Automating deployments with GitHub and GitLab
 
 
 
