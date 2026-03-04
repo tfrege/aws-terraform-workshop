@@ -4,7 +4,7 @@ Useful for the deployment of the AWS Landing Zone Accelerator (LZA).
 
 
 
-![diagram.png](img/diagram.png)
+![diagram.png](../img/diagram.png)
 
 # Requirements
 1. S3 Bucket where the zip file will be copied, i.e. `aws-accelerat﻿or-config-123456789011`
@@ -151,7 +151,7 @@ jobs:
 
 The repo will look like this:
 <br />
-![github_repo_with_action.png]( ./img/github_actions_repo_with_action.png)
+![github_repo_with_action.png](../img/github_actions_repo_with_action.png)
 
 
 Now each time a code change is made in the `main` branch, the action will be executed.
