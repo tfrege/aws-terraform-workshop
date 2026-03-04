@@ -1,0 +1,30 @@
+image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
+
+stages:
+#  - validate_config
+  - deploy
+
+#validations:
+#  stage: validate_config    
+#  before_script:
+#     - apt-get update -qy
+#     - apt-get install -y nodejs npm # If needed
+#     - npm install -g yarn
+#  script:
+#    - yarn validate-config ./aws-accelerator-config/
+
+deployments:
+  stage: deploy
+#  image: python:latest # Or an image with AWS CLI pre-installed
+  before_script:
+    - apt install zip
+   # - pip install awscli # Install AWS CLI if not already present in the image
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region us-east-1 # Set your desired AWS region
+  script:
+    - echo "AWS CLI configured successfully!"
+  #  - aws s3 ls # Example: List S3 buckets to verify configuration
+    - zip -r aws-accelerator-config.zip aws-accelerator-config/
+    - aws s3 cp aws-accelerator-config.zip s3://$S3_BUCKET_NAME/zipped/
+    # Add your specific AWS commands here, e.g., deploying to ECR, ECS, etc.

@@ -623,5 +623,5 @@ See [TERRAFORM.md](./doc/TERRAFORM.md)
 
 # Automating deployments with GitHub and GitLab
 
-
+See [Automation with GitHub Actions or GitLab CI](./doc/GITHUB-GITLAB-AUTOMATION.md)
 
