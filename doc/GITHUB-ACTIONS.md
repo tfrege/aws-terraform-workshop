@@ -93,7 +93,7 @@ And the following trust policy:
    * AWS_REGION (name of the region, i.e. us-east-1)
    * S3_BUCKET_NAME (name of the S3 bucket where the zip file will be uploaded)
 
-![github-secrets.png](img/github_secrets.png)
+![github-secrets.png]( ./img/github_actions_secrets.png)
 
 
 
@@ -151,7 +151,7 @@ jobs:
 
 The repo will look like this:
 <br />
-![github_repo_with_action.png](img/github_repo_with_action.png)
+![github_repo_with_action.png]( ./img/github_actions_repo_with_action.png)
 
 
 Now each time a code change is made in the `main` branch, the action will be executed.
