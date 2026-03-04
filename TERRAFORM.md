@@ -10,31 +10,27 @@ Terraform 200
 - [Validations](#validations)
 - [Modules](#modules)
 - [Outputs](#outputs)
-- [Functions](#functions)
+- [Built-in Functions](#built-in-functions)
 - [Loops](#loops)
 - [data and locals](#data-and-locals)
 - [Environments](#environments)
 - [Backend configuration](#backend-configuration)
 - [Useful add-ons](#useful-add-ons)
-  - [checkov](#checkov)
-  - [terraform-docs](#terraform-docs)
 
 
 # Providers
-A provider ise a plugin that acts as a bridge between the core Terraform application and the APIs of various cloud providers, SaaS services, and other platforms.
+A provider is a plugin that acts as a bridge between the core Terraform application and the APIs of various cloud providers, SaaS services, and other platforms.
 
 Every Terraform project needs at least 1 provider defined.
 
 Most basic declaration:
 ```hcl
-# The provider will inherit the IAM Role used by the EC2 instance. That role must have all the required permissions for the Terraform code to work.
+# The provider will inherit the IAM Role used by the EC2 instance. 
+# That role must have all the required permissions for the Terraform code to work.
 provider "aws" {
   region = "us-west-2"
 }
 ```
-
-
-
 
 Specifying the way to authenticate into the AWS Account:
 ```hcl
@@ -210,7 +206,8 @@ resource "aws_lambda_function" "launch_eval" {
 
 # Validations
 
-Validations are good practice. You can validate the values your variables are taking:
+Validations are good practice. You can validate the values your variables are taking.
+Here are a few examples:
 
 ```hcl
 # Validate a variable has a minimum of N chars
@@ -348,9 +345,9 @@ module "newLambda" {
 }
 ```
 
-# Functions 
+# Built-in Functions 
 Some examples of useful methods that can be used to transform variables.
-For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
+For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md) and the [Official Terraform website](https://developer.hashicorp.com/terraform/language/functions).
 
 
 | Function | Description | Example |
@@ -424,18 +421,18 @@ Data helps retrieve existing resources. Examples:
 
 Working with AWS data:
 ```hcl
- Look up the current AWS account identity
+# Look up the current AWS account identity
 data "aws_caller_identity" "current" {}
 
- Look up the current AWS region
+# Look up the current AWS region
 data "aws_region" "current" {}
 
- Look up the current AWS partition
+# Look up the current AWS partition
 data "aws_partition" "current" {}
 
- In the resources provisioning:
+# In the resources provisioning:
 
- To produce the name as "mybucket-1090392029-us-west-2". It helps secure unique identifiers.
+# To produce the name as "mybucket-1090392029-us-west-2". It helps secure unique identifiers.
 resource "aws_s3_bucket" "artifacts" {
     bucket = format("mybucket-%s-%s", data.aws_caller_identity.current.account_id, data.aws_region.current.name)
 }
@@ -547,11 +544,8 @@ terraform {
 
 # Useful add-ons
 
-See [ADDONS](ADDONS.md).
+ See [ADDONS](ADDONS.md) for details on:
 
-## checkov
-[Checkov](https://www.checkov.io/) is a great tool to scan your code and detect security vulnerabilities.
-
-## terraform-docs
-Generates documentation for your Terraform code. It produces a better document if the variables and outputs
+* checkov: [Checkov](https://www.checkov.io/) is a great tool to scan your code and detect security vulnerabilities.
+* terraform-docs: Generates documentation for your Terraform code. It produces a better document if the variables and outputs
 are well documented.
