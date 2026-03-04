@@ -287,6 +287,39 @@ For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
 
 # Loops
 
+Simple List Iteration using `count`:
+
+```hcl
+variable "instance_names" {
+  default = ["web-1", "web-2", "web-3"]
+}
+
+resource "aws_instance" "server" {
+  count         = length(var.instance_names)
+  ami           = "ami-12345678"
+  instance_type = "t2.micro"
+  
+  tags = {
+    Name = var.instance_names[count.index]
+  }
+}
+```
+
+Conditional Resource Creation:
+
+```hcl
+variable "create_instance" {
+  default = true
+}
+
+resource "aws_instance" "server" {
+  count         = var.create_instance ? 1 : 0
+  ami           = "ami-12345678"
+  instance_type = "t2.micro"
+}
+
+# Access: aws_instance.server[0] (if created)
+```
 
 
 
