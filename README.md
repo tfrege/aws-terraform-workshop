@@ -31,7 +31,7 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 
 A mission team runs a periodic ‘launch window check’. The check evaluates a few constraints (wind, clouds, lightning, range status) against thresholds and outputs GO / NO-GO. The result is stored in S3 as an audit artifact, and the team gets an email when the run completes.
 
-<img src="img/architecture.png">
+<img src="img/architecture.png" width="80%">
 
 
 
