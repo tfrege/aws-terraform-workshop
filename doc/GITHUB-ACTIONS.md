@@ -4,7 +4,7 @@ Useful for the deployment of the AWS Landing Zone Accelerator (LZA).
 
 
 
-![diagram.png](./img/diagram.png)
+![diagram.png](./img/github_actions_diagram.png)
 
 # Requirements
 1. S3 Bucket where the zip file will be copied, i.e. `aws-accelerat﻿or-config-123456789011`
