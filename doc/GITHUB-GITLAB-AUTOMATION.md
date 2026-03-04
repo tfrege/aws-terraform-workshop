@@ -1,13 +1,13 @@
----
-title: Automated deployments in GitHub and GitLab
----
+# Automated deployments in GitHub and GitLab
 
+- [Automated deployments in GitHub and GitLab](#automated-deployments-in-github-and-gitlab)
 - [GitHub Actions](#github-actions)
   - [IAM Role](#iam-role)
   - [GitHub Repo](#github-repo)
 - [GitLab CI/CD](#gitlab-cicd)
   - [IAM Role](#iam-role-1)
   - [GitLab Repo configuration](#gitlab-repo-configuration)
+- [Adding additional steps like checkov](#adding-additional-steps-like-checkov)
 
 
 # GitHub Actions
@@ -237,7 +237,7 @@ And the following trust policy:
 ## GitLab Repo configuration
 
 1. Create a repo in GiLab
-2. Store 3 secrets under Settings > CI/CD > Variables:
+2. Store 2 secrets under `Settings -> CI/CD -> Variables`:
    * AWS_ASSUME_ROLE (stores the ARN of the Role created previously)
    * AWS_REGION (name of the region, i.e. us-east-1)
 3. Store the code in the repo inside a folder like `source` or `src`
@@ -279,9 +279,59 @@ deploy:
     name: production
 ```
 
+The repo will look like this:
+<br />
+
+```
+.
+├── .gitlab-ci.yml
+└── src/
+    └── the code is here
+```
 
 Now each time a code change is made in the `main` branch, the CICD pipeline will be executed.
 
 It's recommended to branch the code and merge it into `main` via a pull request, but the code can also be directly changed in the main branch
 
-Optionally, you can add an action to validate the changes before creating the zip file and uploading to S3.
+
+# Adding additional steps like checkov
+Optionally, you can add additional actions, like running `checkov` before `terraform apply`:
+
+```yaml
+# GitHub:
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+
+  - name: Checkov Scan
+    uses: bridgecrewio/checkov-action@master
+    with:
+      directory: src/
+      framework: terraform
+      soft_fail: false
+```
+
+```yaml
+# GitLab:
+stages:
+  - security
+  - validate
+  - deploy
+
+before_script:
+  - cd src
+  - terraform --version
+  - terraform init
+
+security:
+  stage: security
+  image: bridgecrew/checkov:latest
+  script:
+    - checkov -d src/ --framework terraform --compact
+  only:
+    - main
+```
+
+
+
+
