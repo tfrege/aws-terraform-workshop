@@ -293,6 +293,7 @@ Re-test the function.
 <img src="img/lambda-error.png">
 
 
+<p>
 <div style="background-color: red; color: white; padding: 10px;">
   <b>Why it failed</b>
     It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
@@ -300,6 +301,7 @@ Re-test the function.
     has no permissions to invoke another or perform changes. Any action must be explicitly allowed.
     To make this happen, AWS uses `IAM Roles` and `IAM Policies`. We already created one for the Lambda function.
 </div>
+</p>
 
 Go to the Terraform repo and open the file `terraform --> main.tf` 
 
