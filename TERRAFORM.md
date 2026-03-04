@@ -14,33 +14,37 @@
 ### variables.tf
 Set default values in each variable definition.
 
+```hcl
+variable "project_name" {
+  description = "Name prefix for resources"
+  type        = string
+  default     = "launch-window-workshop"
+}
 
-### Execution time through the terminal 
+variable "max_wind_kts" {
+  description = "Maximum allowable wind speed (knots) for GO decision"
+  type        = number
+  default     = 20
+}
+```
+
+### Execution time through the terminal
 
 Overwrite any default value while executing the code (variables with no default set will be requested at run time):
 
 ```bash 
-    terraform apply -var="lambda_name=my-launch-fn" -var="bucket=my-bucket-name"
+    terraform apply -var="project_name=launch-time" -var="max_wind_kts=25"
 ```
 
-### terraform.tfvars 
+### terraform.tfvars
 
 It's a good practice to leave specific values out of the variables.tf
 
 ```hcl
-lambda_name   = "my-launch-fn"
+project_name  = "launch-time"
 bucket        = "lmy-bucket-name"
-
-ingest_email = "YOUR_EMAIL@example.com"
-done_email   = "YOUR_EMAIL@example.com"
-
-# Fast feedback for workshop:
-schedule_expression = "rate(2 minutes)"
-
-mission     = "DEMO-1"
-launch_site = "KSC"
-vehicle     = "LV-A"
-
+done_email    = "YOUR_EMAIL@example.com"
+schedule_expression  = "rate(2 minutes)"
 max_wind_kts         = 20
 min_cloud_ceiling_ft = 2500
 lightning_allowed    = false
@@ -52,13 +56,112 @@ range_allowed        = "GREEN"
 
 Tag, always tag. Each AWS resource supports up to 50 {key, value} tags.
 
+```hcl
+resource "aws_lambda_function" "launch_eval" {
+  function_name = "${local.project_name}-launch-eval"
+  role          = aws_iam_role.lambda_role.arn
+  
+  tags = {
+    Team        = "Engineering"
+    Environment = "dev"
+    CostCenter  = "12345"
+  }
+}
+```
+
+Terraform supports assigning default tags to all resources of a project. These must be defined in the provider:
+
+```hcl
+provider "aws" {
+  profile = "default"
+  region  = "us-west-1"
+
+  default_tags {
+    tags = {
+        Team        = "Engineering"
+        Environment = "dev"
+        CostCenter  = "12345"
+    }
+  }
+}
+```
+
+You can combine default tags with specific tags for specific resources:
+```hcl
+# This resource will inherit all the tags defined by its provider, plus get additional ones set
+resource "aws_lambda_function" "launch_eval" {
+  function_name = "${local.project_name}-launch-eval"
+  role          = aws_iam_role.lambda_role.arn
+  
+  tags = {
+    Module      = "MissionOperations"
+    Layer       = "Application"
+    CostCenter  = "67890"       # This means the default tag will be overwritren
+  }
+}
+```
 
 
 ## Validations
 
 Validations are good practice. You can validate the values your variables are taking:
 
+```hcl
+# Validate a variable has a minimum of N chars
+variable "env" {
+  type        = string
+  description = "Environment (DEV, QA, PROD, etc.)"
+  validation {
+    condition     = length(var.env) > 1
+    error_message = "Enter an environment name equal or longer than 2 chars."
+  }
+}
 
+# Validate a region belongs to a finite list
+variable "region" {
+  type        = string
+  default     = "us-east-1"
+  description = "Select one of the following: us-east-1, us-east-2, us-west-1, us-west-2"
+  validation {
+    condition = contains(["us-east-1", "us-east-2", "us-west-1", "us-west-2"], var.region)
+    error_message = "Error: The region is incorrect."
+  }
+}
+
+# Regex to validate a string is properly formatted. Specially useful when passing ARNs
+variable "kms_key_arn" {
+  type        = string
+  description = "ARN of the KMS key"
+  default     = "arn:aws:kms:<REGION_ID>:<ACCOUNT_ID>:key/<KMS_ID>"
+
+  validation {
+    condition     = can(regex("^arn:aws:kms:[a-z][a-z]-[a-z]+-[1-9]:[[:digit:]]{12}:key/.+", var.kms_key_arn))
+    error_message = format("The KMS key ARN (%s) is invalid.", var.kms_key_arn)
+  }
+}
+
+# List has at least 1 value
+variable "sources_list" {
+  type        = map(any)
+  description = "List of objects where each element is a source to create."
+  validation {
+    condition     = length(var.sources_list) > 0
+    error_message = "Provide at least 1 element to the list of Sources to create."
+  }
+}
+
+# The value belongs to a defined list of options
+variable "archive_storage_class" {
+  type        = string
+  description = "Storage class to use for archival of files."
+  default     = "DEEP_ARCHIVE"
+
+  validation {
+    condition     = can(regex("^(STANDARD|STANDARD_IA|GLACIER|DEEP_ARCHIVE)$", var.archive_storage_class))
+    error_message = format("Invalid input for archive_storage_class, options are: \"STANDARD\", \"STANDARD_IA\", \"GLACIER\", \"DEEP_ARCHIVE\" (value given: %s).", var.archive_storage_class)
+  }
+}
+```
 
 
 ## Modules
@@ -105,6 +208,161 @@ Even better, you can have _modules_, and invoke each from the main.tf file (whic
 
 ```
 
+## Outputs
+
+Similar to `variables.tf` which define the ingress values for a Terraform project, `outputs.tf` defines 
+the list of outputs. It is optional but useful when working with modules.
+
+```hcl
+output "lambda_function_arn" {
+  value       = aws_lambda_function.my_func.arn
+  description = "ARN of the new Lambda function."
+}
+```
+
+Passing the output of one module as the input of another:
+```hcl
+# In ./modules/iam/role:
+output "iam_role_arn" {
+  value       = aws_iam_role.new_role.arn
+  description = "ARN of the new IAM Role."
+}
+
+# In main.tf, when invoking the modules:
+
+module "lambdaRole" {
+  source                    = "./modules/iam/role"
+  name                      = format("%s-%s-role", var.project_name, var.environment)
+}
+
+module "newLambda" {
+  source                    = "./modules/lambda"
+  name                      = format("%s-%s-lambda", var.project_name, var.environment)
+  iam_role                  = module.lambdaRole.iam_role_arn
+}
+```
+
+## Functions 
+Some examples of useful methods that can be used to transform variables.
+For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
+
+
+| Function | Description | Example |
+|----------|-------------|---------|
+| Strings |
+| `format(spec, values...)` | Formats string using printf-style syntax | `format("Hello, %s!", "World")` → `"Hello, World!"` |
+| `join(separator, list)` | Joins list elements with separator | `join(", ", ["a", "b"])` → `"a, b"` |
+| `lower(string)` | Converts string to lowercase | `lower("HELLO")` → `"hello"` |
+| `regex(pattern, string)` | Matches regex pattern in string | `regex("[a-z]+", "abc123")` → `"abc"` |
+| `replace(string, search, replace)` | Replaces occurrences in string | `replace("hello", "l", "L")` → `"heLLo"` |
+| `split(separator, string)` | Splits string into list | `split(",", "a,b,c")` → `["a", "b", "c"]` |
+| `substr(string, offset, length)` | Extracts substring | `substr("hello", 1, 3)` → `"ell"` |
+| `title(string)` | Converts to title case | `title("hello world")` → `"Hello World"` |
+| `trim(string, chars)` | Removes characters from start/end | `trim("?hello?", "?")` → `"hello"` |
+| `upper(string)` | Converts string to uppercase | `upper("hello")` → `"HELLO"` |
+| Numeric |
+| `ceil(number)` | Rounds up to nearest integer | `ceil(4.3)` → `5` |
+| `max(numbers...)` | Returns maximum value | `max(5, 12, 9)` → `12` |
+| `min(numbers...)` | Returns minimum value | `min(5, 12, 9)` → `5` |
+| Collections |
+| `flatten(list)` | Flattens nested lists | `flatten([[1,2], [3,4]])` → `[1,2,3,4]` |
+| `index(list, value)` | Returns index of value in list | `index([1,2,3], 2)` → `1` |
+| `sort(list)` | Sorts list alphabetically | `sort(["c", "a", "b"])` → `["a", "b", "c"]` |
+| `sum(list)` | Sums numeric list | `sum([1, 2, 3])` → `6` |
+| Date and time |
+| `formatdate(format, timestamp)` | Formats timestamp | `formatdate("YYYY-MM-DD", timestamp())` → `"2024-01-15"` |
+| `timestamp()` | Returns current timestamp | `timestamp()` → `"2024-01-15T10:30:00Z"` |
+| Type Conversion |
+| `tonumber(value)` | Converts to number | `tonumber("42")` → `42` |
+| `tostring(value)` | Converts to string | `tostring(42)` → `"42"` |
+
+
+## Loops
+
+
+
+
+## data and locals
+
+Data helps retrieve existing resources. Examples:
+* You need to know the ID of the AWS Account where the resources are being deployed,
+* You need the AWS region
+* The AWS partition (aws or aws-us-gov)
+* The data of a resource that will be used to deploy the news ones, such as:
+  * The list of subnets for a given VPC
+  * All the data associated to a Lambda function
+
+
+Working with AWS data:
+```hcl
+# Look up the current AWS account identity
+data "aws_caller_identity" "current" {}
+
+# Look up the current AWS region
+data "aws_region" "current" {}
+
+# Look up the current AWS partition
+data "aws_partition" "current" {}
+
+# In the resources provisioning:
+
+# To produce the name as "mybucket-1090392029-us-west-2". It helps secure unique identifiers.
+resource "aws_s3_bucket" "artifacts" {
+    bucket = format("mybucket-%s-%s", data.aws_caller_identity.current.account_id, data.aws_region.current.name)
+}
+```
+
+Obtaining the private subnets of a given VPC ID:
+```hcl
+data "aws_subnets" "private_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+  tags = {
+    "tier" = "private"
+  }
+}
+```
+
+Passing data as a parameter for a new resource:
+```hcl
+data "aws_subnets" "public_subnets" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.vpc.id]
+  }
+  tags = {
+    "tier" = "public"
+  }
+}
+
+resource "aws_lb" "alb" {
+  name               = "alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = var.your_security_group_id
+  subnets            = data.aws_subnets.public_subnets.ids
+}
+```
+
+```hcl
+data "aws_lambda_function" "existing" {
+  function_name = "name-of-your-existing-lambda"
+  # Optional: specify a qualifier (alias or version number)
+  # qualifier     = "$LATEST"
+}
+
+output "the_function_memory_size" {
+  value = data.aws_lambda_function.existing.memory_size
+}
+
+output "the_function_role" {
+  value = data.aws_lambda_function.existing.role
+}
+```
+
+
 ## Environments
 Environments are excellent mechanisms to execute the same code base in different environments, and use
 a different .tfvars file for each, remembering to pass it at time of execution.
@@ -144,9 +402,13 @@ Solution: Remote Backend.
 Terraform supports remote backends such as S3.
 
 
-## Scanning Tools
+## Useful add-ons
+
+See [ADDONS](ADDONS.md).
 
 ### checkov
+[Checov](https://www.checkov.io/) is a great tool to scan your code and detect security vulnerabilities.
 
-
-
+### terraform-docs
+Generates documentation for your Terraform code. It produces a better document if the variables and outputs
+are well documented.

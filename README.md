@@ -251,7 +251,7 @@ Now open the `main.tf` file and add this block:
 # S3 bucket for audit artifacts
 # -----------------------------
 resource "aws_s3_bucket" "artifacts" {
-bucket = lower("${local.name_prefix}-artifacts")
+    bucket = lower("${local.name_prefix}-artifacts")
 }
 
 resource "aws_s3_bucket_versioning" "artifacts" {

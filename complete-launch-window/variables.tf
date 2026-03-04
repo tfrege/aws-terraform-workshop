@@ -10,34 +10,16 @@ variable "project_name" {
   default     = "launch-window-workshop"
 }
 
-
 variable "done_email" {
   description = "Email address to subscribe to completion SNS topic (requires confirmation)"
   type        = string
+  default     = "your@email.com"
 }
 
 variable "schedule_expression" {
   description = "EventBridge schedule expression (e.g., rate(5 minutes) or cron(...))"
   type        = string
   default     = "rate(5 minutes)"
-}
-
-variable "mission" {
-  description = "Mission name included in the scheduled payload"
-  type        = string
-  default     = "DEMO-1"
-}
-
-variable "launch_site" {
-  description = "Launch site identifier included in the scheduled payload"
-  type        = string
-  default     = "KSC"
-}
-
-variable "vehicle" {
-  description = "Vehicle identifier included in the scheduled payload"
-  type        = string
-  default     = "LV-A"
 }
 
 variable "max_wind_kts" {
