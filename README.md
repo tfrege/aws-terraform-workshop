@@ -249,13 +249,6 @@ Now open the `main.tf` file and add this block:
 resource "aws_s3_bucket" "artifacts" {
     bucket = lower("${local.name_prefix}-artifacts")
 }
-
-resource "aws_s3_bucket_versioning" "artifacts" {
-    bucket = aws_s3_bucket.artifacts.id
-    versioning_configuration {
-        status = "Enabled"
-    }
-}
 ```
 
 Then, find the place where the Lambda's environment variables are defined, remove the "TBD" string for `ARTIFACT_BUCKET` and replace it with the commented line next to it:
