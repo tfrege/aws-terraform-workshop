@@ -25,6 +25,12 @@ And make sure you are in the $HOME directory:
 ```
 
 
+## Install Terraform
+
+See [INSTALL.md](INSTALL.md)
+
+
+
 ## Get a copy of the base code
 For the purpose of this Workshop, the code is located in this S3 Bucket:
 
@@ -35,12 +41,12 @@ aws-terraform-workshop
 Copy it to the EC2 running this command:
 
 ```bash
-    aws s3 cp s3://aws-terraform-workshop/launch-window.zip .    
+    aws s3 cp s3://aws-terraform-workshop/workshopsrc.zip .    
 ```
 
 And then unzip the file:
 ```bash
-    unzip launch-window.zip .
+    unzip workshopsrc.zip .
 ```
 
 ### Repo structure
@@ -53,6 +59,25 @@ And then unzip the file:
     └── handler.py
 ```
 
+Open the file `main.tf`:
+
+```bash
+vi main.tf
+```
+
+Click `I` to enter editiom mode, and in the line `name_prefix`, set the value to your name:
+
+```hcl
+locals {
+  name_prefix = "yourname"   <--- HERE
+  project_name = "launch-window-by-${local.name_prefix}"
+}
+```
+
+Click `ESC` and then type `:w!` and press `ENTER` to write the changes.
+Then type `:q` and press `ENTER` to quit the editor.
+
+
 # Terraform 101
 
 ## initialize terraform
@@ -62,6 +87,9 @@ The `terraform init` command initializes a working directory containing configur
 ```bash 
     terraform init
 ```
+
+<img src="img/terraform-init.png">
+
 
 ## validate the code 
 
@@ -143,37 +171,86 @@ The code base is setup to deploy a Lambda function called launch-window.
 
 Once the `apply` completes, go to the `AWS Console --> Lambda --> Functions` and find your Lambda. 
 
-Create a new Test Event.
+Create a new Test Event in order to execute the function.
 
-And execute the function.
+
+<img src="img/lambda-create-test-1.png">
+
+Assign a name to the test:
+
+
+<img src="img/lambda-create-test-2.png">
+
+
+For this application, there is no need to change the content of the JSON given by default, since the function won't use it.
+
+Click `Save` and then click `Invoke`.
+
+Verify the function executes successfully.
+
+<img src="img/lambda-test-execution-1.png">
+
+
+Another way to verify this, is to open its CloudWatch log. In the tab `Monitor`, click `View CloudWatch logs`. It will open a new window.
+
+<img src="img/lambda-monitor-tab.png">
+
+
+It will show the Lambda's CloudWatch LogGroup, with a list of logs: one for each execution.
+
+
+<img src="img/cloudwatch-log-streams.png">
+
+
+<img src="img/cloudwatch-log-events.png">
+
+
 
 
 ## Storing the results in an Amazon S3 Bucket 
 
-Open the file `terraform --> lambda --> handler.py` file and add the following piece:
+Now let's add an Amazon S3 Bucket where the Lambda function can store the results.
 
+Open the file `terraform --> lambda --> handler.py` file and remove the comments for the following pieces:
 
-```python 
-```
+* `s3 = boto3.client("s3")` 
+* `ARTIFACT_BUCKET = os.environ["ARTIFACT_BUCKET"]`
+* `ARTIFACT_PREFIX = os.environ.get("ARTIFACT_PREFIX", "launch-window")`
+* `def _artifact_key(run_dt: datetime, mission: str)` (uncomment the entire method)
+* Lines 93 - 99
 
-Now open the main.tf file and add this blocks:
+Save the changes.
+
+Now open the `main.tf` file and add this block:
 
 ```hcl 
-    # -----------------------------
-    # S3 bucket for audit artifacts
-    # -----------------------------
-    resource "aws_s3_bucket" "artifacts" {
-    bucket = lower("${local.name_prefix}-artifacts")
-    tags   = local.tags
-    }
+# -----------------------------
+# S3 bucket for audit artifacts
+# -----------------------------
+resource "aws_s3_bucket" "artifacts" {
+bucket = lower("${local.name_prefix}-artifacts")
+}
 
-    resource "aws_s3_bucket_versioning" "artifacts" {
-        bucket = aws_s3_bucket.artifacts.id
-        versioning_configuration {
-            status = "Enabled"
-        }
+resource "aws_s3_bucket_versioning" "artifacts" {
+    bucket = aws_s3_bucket.artifacts.id
+    versioning_configuration {
+        status = "Enabled"
     }
+}
 ```
+
+Then, find the place where the Lambda's environment variables are defined, remove the "TBD" strings for `ARTIFACT_BUCKET` and replace it with the commented line next to it:
+
+From:
+```hcl
+ARTIFACT_BUCKET          = "TBD"  #aws_s3_bucket.artifacts.bucket
+```
+
+To:
+```hcl
+ARTIFACT_BUCKET          = aws_s3_bucket.artifacts.bucket
+```
+
 
 Save the changes and re-deploy the solution:
 
@@ -190,6 +267,7 @@ Re-test the function.
 
 :x: It fails
 
+<img src="img/lambda-error.png">
 
 ## Why it failed
 
@@ -203,37 +281,37 @@ Find the block ``data "aws_iam_policy_document" "lambda_policy"`` and add this b
 
 
 ```hcl 
-  statement {
+statement {
     effect = "Allow"
     actions = [
-      "s3:PutObject"
+        "s3:PutObject"
     ]
     resources = ["${aws_s3_bucket.artifacts.arn}/*"]
-  }
+}
 ```
 
 The entire block should look like:
 
 ```hcl 
-    data "aws_iam_policy_document" "lambda_policy" {
-        statement {
-            effect = "Allow"
-            actions = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-            ]
-            resources = ["*"]
-        }
-
-        statement {
-            effect = "Allow"
-            actions = [
-            "s3:PutObject"
-            ]
-            resources = ["${aws_s3_bucket.artifacts.arn}/*"]
-        }
+data "aws_iam_policy_document" "lambda_policy" {
+    statement {
+        effect = "Allow"
+        actions = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+        ]
+        resources = ["*"]
     }
+
+    statement {
+        effect = "Allow"
+        actions = [
+        "s3:PutObject"
+        ]
+        resources = ["${aws_s3_bucket.artifacts.arn}/*"]
+    }
+}
 ```
 
 
@@ -258,8 +336,62 @@ We'll add an Event Bridge schedule that will execute the function every 5 minute
 Open the `main.tf` file and add this block:
 
 ```hcl 
+# -----------------------------
+# EventBridge 
+# -----------------------------
+resource "aws_scheduler_schedule" "rule" {
+  name                = "launch-schedule"
+  group_name = "default"
+
+  flexible_time_window {
+    mode = "OFF"
+  }
+
+  schedule_expression = "rate(5 minutes)" # Or use an event_pattern
+
+  target {
+    arn      = aws_lambda_function.launch_eval.arn
+    role_arn = aws_iam_role.schedule_role.arn
+  }
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_to_invoke_lambda" {
+  statement_id  = "AllowEventBridgeInvocation"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.launch_eval.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_scheduler_schedule.rule.arn
+}
 
 
+resource "aws_iam_role" "schedule_role" {
+  name = "${local.project_name}-schedule-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = { Service = "scheduler.amazonaws.com" }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+data "aws_iam_policy_document" "schedule_policy" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "lambda:InvokeFunction"
+    ]
+    resources = [aws_lambda_function.launch_eval.arn]
+  }
+}
+
+resource "aws_iam_role_policy" "schedule_inline" {
+  name   = "${local.project_name}-schedule-policy"
+  role   = aws_iam_role.schedule_role.id
+  policy = data.aws_iam_policy_document.schedule_policy.json
+}
 ```
 
 Save the changes and re-deploy:
@@ -282,29 +414,46 @@ Save the changes and re-deploy:
 
 Now let's add a notification when the Lambda finishes, sending the results to an e-mail address.
 
+Open the file `terraform --> lambda --> handler.py` file and remove the comments for the following pieces:
 
+* `sns = boto3.client("sns")` 
+* `DONE_TOPIC_ARN = os.environ["DONE_TOPIC_ARN"]`
+* Lines 101 - 125
 
-Open the `main.tf` file and add this block:
+Save the changes.
+
+Now open the `main.tf` file and add this block (make sure to update your e-mail address):
 
 ```hcl 
-    # -----------------------------
-    # SNS Topic
-    # -----------------------------
-    resource "aws_sns_topic" "done" {
-        name = "${local.name_prefix}-done"
-        tags = local.tags
-    }
+# -----------------------------
+# SNS Topic
+# -----------------------------
+resource "aws_sns_topic" "done" {
+    name = "${local.name_prefix}-done"
+}
 
-    # Email subscriptions (require confirmation by clicking link in email)    
-    resource "aws_sns_topic_subscription" "done_email" {
-        topic_arn = aws_sns_topic.done.arn
-        protocol  = "email"
-        endpoint  = var.done_email
-    }
+# Email subscriptions (require confirmation by clicking link in email)    
+resource "aws_sns_topic_subscription" "done_email" {
+    topic_arn = aws_sns_topic.done.arn
+    protocol  = "email"
+    endpoint  = "your@email.com"
+}
 ```
 
 
-Also, let's make sure the Lambda will have the required permissions to publish messages to this new topics.
+Then, find the place where the Lambda's environment variables are defined, remove the "TBD" strings for `ARTIFACT_BUCKET` and replace it with the commented line next to it:
+
+From:
+```hcl
+DONE_TOPIC_ARN           = "TBD" #aws_sns_topic.done.arn
+```
+
+To:
+```hcl
+DONE_TOPIC_ARN           = aws_sns_topic.done.arn
+```
+
+Also, let's make sure the Lambda will have the required permissions to publish messages to this new topic.
 In the block ``data "aws_iam_policy_document" "lambda_policy"``:
 
 ```hcl 
@@ -345,6 +494,26 @@ Save the changes and re-deploy:
     terraform apply -auto-approve
 ```
 
+Wait until it completes, go back to the Console, verify the changes are there:
+* A new SNS topic has been created
+* The SNS topic has a subscriber with your e-mail
+* You got an e-mail asking to confirm to the subscription
+* The Lambda code contains the new block 
+
+
+<img src="img/sns-subscription-email.png">
+
+Remember to confirm the subscription in order to get the notifications:
+
+<img src="img/sns-subscription-confirmation.png">
+
+ 
+Re-test the function, or wait for EventBridge to trigger it.
+
+DONE!
+
+
+
 ## Remove all hardcoded values and turn them into variables
 
 Hardcoded values are always bad practice.
@@ -352,25 +521,6 @@ Hardcoded values are always bad practice.
 Create a file named `variables.tf` and copy this code:
 
 ```hcl 
-
-variable "mission" {
-  description = "Mission name included in the scheduled payload"
-  type        = string
-  default     = "DEMO-1"
-}
-
-variable "launch_site" {
-  description = "Launch site identifier included in the scheduled payload"
-  type        = string
-  default     = "KSC"
-}
-
-variable "vehicle" {
-  description = "Vehicle identifier included in the scheduled payload"
-  type        = string
-  default     = "LV-A"
-}
-
 variable "max_wind_kts" {
   description = "Maximum allowable wind speed (knots) for GO decision"
   type        = number
@@ -430,7 +580,7 @@ Inside the definition of the Lambda function (`resource "aws_lambda_function" "l
 ```
 
 
-## More advanced Terraform concepts
+## Advanced Terraform concepts
 
 See [TERRAFORM.md](TERRAFORM.md)
 

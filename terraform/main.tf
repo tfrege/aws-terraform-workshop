@@ -1,7 +1,7 @@
 locals {
-  project_name = "launch-window-by-telma"
+  name_prefix = "yourname"
+  project_name = "launch-window-by-${local.name_prefix}"
 }
-
 
 # -----------------------------
 # Lambda 
@@ -57,16 +57,18 @@ resource "aws_lambda_function" "launch_eval" {
 
   environment {
     variables = {
-      ARTIFACT_BUCKET          = aws_s3_bucket.artifacts.bucket
-      DONE_TOPIC_ARN           = aws_sns_topic.done.arn
-      MAX_WIND_KTS             = tostring(20)
-      MIN_CLOUD_CEILING_FT     = tostring(2500)
-      LIGHTNING_ALLOWED        = tostring(false)
-      RANGE_ALLOWED            = "GREEN"
+      ARTIFACT_BUCKET          = "TBD"  #aws_s3_bucket.artifacts.bucket
+      DONE_TOPIC_ARN           = "TBD"  #aws_sns_topic.done.arn
+      MAX_WIND_KTS             = tostring(20)  #tostring(var.max_wind_kts)
+      MIN_CLOUD_CEILING_FT     = tostring(2500) #tostring(var.min_cloud_ceiling_ft)
+      LIGHTNING_ALLOWED        = tostring(false) #tostring(var.false)
+      RANGE_ALLOWED            = "GREEN" #var.range_allowed
       ARTIFACT_PREFIX          = "launch-window"
     }
   }
 
   depends_on = [aws_iam_role_policy.lambda_inline]
 }
+
+
 
