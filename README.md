@@ -63,16 +63,16 @@ Open the file `main.tf`:
 vi main.tf
 ```
 
-Click `I` to enter editiom mode, and in the line `name_prefix`, set the value to your name:
+Click `I` to enter edition mode, and in the line `name_prefix`, set the value to your name:
 
 ```hcl
 locals {
-  name_prefix = "yourname"   <--- HERE
+  name_prefix  = "yourname"   <--- HERE
   project_name = "launch-window-by-${local.name_prefix}"
 }
 ```
 
-Click `ESC` and then type `:w!` and press `ENTER` to write the changes.
+Press `ESC` and then type `:w!` and press `ENTER` to write the changes.
 Then type `:q` and press `ENTER` to quit the editor.
 
 
@@ -165,7 +165,7 @@ Add the ``-auto-approve`` option:
 
 ## First deployment
 
-The code base is setup to deploy a Lambda function called launch-window.
+The code base is setup to deploy a Lambda function called `launch-window`.
 
 Once the `apply` completes, go to the `AWS Console --> Lambda --> Functions` and find your Lambda. 
 
@@ -177,7 +177,7 @@ Create a new Test Event in order to execute the function.
 Assign a name to the test:
 
 
-<img src="img/lambda-create-test-2.png">
+<img src="img/lambda-create-test-2.png" width=600>
 
 
 For this application, there is no need to change the content of the JSON given by default, since the function won't use it.
