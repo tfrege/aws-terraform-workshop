@@ -7,7 +7,7 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
   - [Login to the AWS Console](#login-to-the-aws-console)
   - [Start a session in the EC2 instance](#start-a-session-in-the-ec2-instance)
   - [Install Terraform](#install-terraform)
-  - [Get a copy of the base code](#get-a-copy-of-the-base-code)
+  - [Get a copy of the initial code](#get-a-copy-of-the-initial-code)
 - [Terraform 101](#terraform-101)
   - [init](#init)
   - [validate](#validate)
@@ -48,7 +48,7 @@ Session Manager should be enabled and should allow you to connect.
 
 Once inside the instance, make sure you are in the $HOME directory:
 
-```console 
+```console
     cd $HOME
 ```
 
@@ -59,7 +59,7 @@ See [INSTALL.md](INSTALL.md)
 
 
 
-## Get a copy of the base code
+## Get a copy of the initial code
 For the purpose of this Workshop, the code is located in an Amazon S3 Bucket. Copy it to the EC2 running this command:
 (Terraform code can be directly executed from a GitHub or GitLab repo, more on that if time allows)
 
@@ -107,7 +107,7 @@ Then type `:q` and press `ENTER` to quit the editor.
 
 The `terraform init` command initializes a working directory containing configuration files and installs plugins for required providers.
 
-```console 
+```console
     terraform init
 ```
 
@@ -118,7 +118,7 @@ The `terraform init` command initializes a working directory containing configur
 
 The terraform validate command validates the configuration files in a directory. It does not validate remote services, such as remote state or provider APIs.
 
-```console 
+```console
     terraform validate
 ```
 
@@ -126,7 +126,7 @@ The terraform validate command validates the configuration files in a directory.
 
 The `terraform plan` command creates an execution plan with a preview of the changes that Terraform will make to your infrastructure.
 
-```console 
+```console
     terraform plan
 ```
 
@@ -134,7 +134,7 @@ The `terraform plan` command creates an execution plan with a preview of the cha
 
 The `terraform apply` command executes the actions proposed in a Terraform plan to create, update, or destroy infrastructure.
 
-```console 
+```console
     terraform apply
 ```
 
@@ -154,26 +154,26 @@ Go back to the ``main.tf`` file and change the name of your function.
 
 Before applying any change, run a plan to verify that only the name will be changed:
 
-```console 
+```console
     terraform plan
 ```
 
 And if everything looks good, apply the changes:
 
-```console 
+```console
     terraform apply
 ```
 
 ## Destroy the deployment
 
-```console 
+```console
     terraform destroy
 ```
 
 Which is the equivalent of:
 
 
-```console 
+```console
     terraform apply -destroy
 ```
 
@@ -181,7 +181,7 @@ Which is the equivalent of:
 Add the ``-auto-approve`` option:
 
 
-```console 
+```console
     terraform apply -auto-approve
 ```
 
@@ -240,7 +240,7 @@ Open the file `terraform --> lambda --> handler.py` file and remove the comments
 * `ARTIFACT_BUCKET = os.environ["ARTIFACT_BUCKET"]`
 * `ARTIFACT_PREFIX = os.environ.get("ARTIFACT_PREFIX", "launch-window")`
 * `def _artifact_key(run_dt: datetime, mission: str)` (uncomment the entire method)
-* Lines 93 - 99
+* Lines 105 - 114
 
 Save the changes.
 
@@ -262,7 +262,7 @@ resource "aws_s3_bucket_versioning" "artifacts" {
 }
 ```
 
-Then, find the place where the Lambda's environment variables are defined, remove the "TBD" strings for `ARTIFACT_BUCKET` and replace it with the commented line next to it:
+Then, find the place where the Lambda's environment variables are defined, remove the "TBD" string for `ARTIFACT_BUCKET` and replace it with the commented line next to it:
 
 From:
 ```hcl
@@ -277,11 +277,11 @@ ARTIFACT_BUCKET          = aws_s3_bucket.artifacts.bucket
 
 Save the changes and re-deploy the solution:
 
-```console 
+```console
     terraform apply -auto-approve
 ```
 
-Wait until it completes, go back to the Console, verify the changes are there:
+Wait until it completes, go back to the Console, and verify the changes are there:
 * A new S3 bucket has been created
 * The Lambda code contains the new block 
  
@@ -292,15 +292,18 @@ Re-test the function.
 
 <img src="img/lambda-error.png">
 
-*Why it failed*
 
-It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
-AWS follows the principle of least privilege: every resource (user, bucket, function, etc.) has no 
-permissions to invoke another or perform changes. Any action must be allowed in its Role.
+<div style="background-color: red; color: white; padding: 10px;">
+  <b>Why it failed</b>
+    It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
+    AWS follows the principle of least privilege: every resource (user, bucket, function, etc.), by default, 
+    has no permissions to invoke another or perform changes. Any action must be explicitly allowed.
+    To make this happen, AWS uses `IAM Roles` and `IAM Policies`. We already created one for the Lambda function.
+</div>
 
 Go to the Terraform repo and open the file `terraform --> main.tf` 
 
-Find the block ``data "aws_iam_policy_document" "lambda_policy"`` and add this block of code:
+Find the block `data "aws_iam_policy_document" "lambda_policy"` and add this block of code:
 
 
 ```hcl 
@@ -313,7 +316,11 @@ statement {
 }
 ```
 
-The entire block should look like:
+This block will allow the Lambda function to add objects to the new bucket (and only that bucket). 
+The function won't be allowed to Read or Delete objects, only add new ones.
+
+
+The entire block should look like this:
 
 ```hcl 
 data "aws_iam_policy_document" "lambda_policy" {
@@ -341,7 +348,7 @@ data "aws_iam_policy_document" "lambda_policy" {
 Save the changes and re-deploy:
 
 
-```console 
+```console
     terraform apply -auto-approve
 ```
 
@@ -420,11 +427,11 @@ resource "aws_iam_role_policy" "schedule_inline" {
 Save the changes and re-deploy:
 
 
-```console 
+```console
     terraform apply -auto-approve
 ```
 
- Go to the console and open EventBridge. Find your schedule.
+ Go to the console and open `EventBridge`. Find your schedule.
 
  You can wait for the 5 mins to pass.
 
@@ -513,7 +520,7 @@ In the block ``data "aws_iam_policy_document" "lambda_policy"``:
 Save the changes and re-deploy:
 
 
-```console 
+```console
     terraform apply -auto-approve
 ```
 
