@@ -1,6 +1,8 @@
 # Checkov and terraform-docs
 
-## Install Checkov
+## Checkov
+
+### Install
 
 ```bash
 # Update system packages
@@ -16,7 +18,7 @@ pip3 install checkov
 checkov --version
 ```
 
-## Run Checkov on Terraform Project
+### Run
 
 ```bash
 # Navigate to your Terraform project directory
@@ -29,7 +31,7 @@ checkov -d . -o json > checkov-results.json
 checkov -d . -o cli -o json --output-file-path . --output-file-name checkov-report
 ```
 
-## Common Output Formats
+### Common Output Formats
 
 - `cli` - Console output (default)
 - `json` - JSON format
@@ -37,13 +39,15 @@ checkov -d . -o cli -o json --output-file-path . --output-file-name checkov-repo
 - `sarif` - SARIF format
 - `github_failed_only` - GitHub format (failed checks only)
 
-## Example: Scan Specific Directory with JSON Output
+### Example: Scan Specific Directory with JSON Output
 
 ```bash
 checkov -d /home/ec2-user/terraform --framework terraform -o json > /home/ec2-user/checkov-scan-results.json
 ```
 
-## Install terraform-docs
+## terraform-docs
+
+### Install
 
 ```bash
 # Download terraform-docs
@@ -59,7 +63,7 @@ sudo mv terraform-docs /usr/local/bin/
 terraform-docs --version
 ```
 
-## Run terraform-docs to Generate README
+### Run and generate README.md
 
 ```bash
 # Navigate to your Terraform project directory

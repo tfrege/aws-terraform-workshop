@@ -448,7 +448,7 @@ Terraform supports remote backends such as S3.
 See [ADDONS](ADDONS.md).
 
 ## checkov
-[Checov](https://www.checkov.io/) is a great tool to scan your code and detect security vulnerabilities.
+[Checkov](https://www.checkov.io/) is a great tool to scan your code and detect security vulnerabilities.
 
 ## terraform-docs
 Generates documentation for your Terraform code. It produces a better document if the variables and outputs
