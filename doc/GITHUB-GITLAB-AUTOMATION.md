@@ -79,9 +79,9 @@ And the following trust policy:
 ## GitHub Repo
 
 1. Create a repo in GitHub
-2. Store 3 secrets under Settings > Secrets and variables > Actions:
-   * AWS_ASSUME_ROLE (stores the ARN of the Role created previously)
-   * AWS_REGION (name of the region, i.e. us-east-1)
+2. Store 2 secrets under `Settings > Secrets and variables > Actions`:
+   * `AWS_ROLE_ARN` (stores the ARN of the Role created previously)
+   * `AWS_REGION` (name of the region, i.e. us-east-1)
 
 ![github-secrets.png](../img/github_actions_secrets.png)
 
@@ -96,7 +96,6 @@ on:
     branches: [main]
 
 env:
-  AWS_REGION: us-east-1
   TF_VERSION: 1.6.0
 
 jobs:
@@ -115,7 +114,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -238,8 +237,8 @@ And the following trust policy:
 
 1. Create a repo in GiLab
 2. Store 2 secrets under `Settings -> CI/CD -> Variables`:
-   * AWS_ASSUME_ROLE (stores the ARN of the Role created previously)
-   * AWS_REGION (name of the region, i.e. us-east-1)
+   * `AWS_ROLE_ARN` (stores the ARN of the Role created previously)
+   * `AWS_REGION` (name of the region, i.e. us-east-1)
 3. Store the code in the repo inside a folder like `source` or `src`
 4. Create the file `.gitlab-ci.yml` with the following contents:
 
@@ -248,16 +247,23 @@ image:
   name: hashicorp/terraform:1.6.0
   entrypoint: [""]
 
-variables:
-  AWS_REGION: us-east-1
-
 stages:
   - validate
   - deploy
 
 before_script:
+  - apk add --no-cache python3 py3-pip
+  - pip3 install awscli
+  - >
+    export $(printf "AWS_ACCESS_KEY_ID=%s AWS_SECRET_ACCESS_KEY=%s AWS_SESSION_TOKEN=%s"
+    $(aws sts assume-role-with-web-identity
+    --role-arn ${AWS_ROLE_ARN}
+    --role-session-name "GitLabRunner-${CI_PROJECT_ID}-${CI_PIPELINE_ID}"
+    --web-identity-token ${CI_JOB_JWT_V2}
+    --duration-seconds 3600
+    --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]'
+    --output text))
   - cd src
-  - terraform --version
   - terraform init
 
 validate:
@@ -326,6 +332,8 @@ before_script:
 security:
   stage: security
   image: bridgecrew/checkov:latest
+  before_script:
+    - echo "Running security scan"
   script:
     - checkov -d src/ --framework terraform --compact
   only:
