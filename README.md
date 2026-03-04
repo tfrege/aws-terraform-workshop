@@ -9,23 +9,22 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
   - [Install Terraform](#install-terraform)
   - [Get a copy of the base code](#get-a-copy-of-the-base-code)
 - [Terraform 101](#terraform-101)
-  - [initialize terraform](#initialize-terraform)
-  - [validate the code](#validate-the-code)
-  - [plan the deployment](#plan-the-deployment)
-  - [deploy the code](#deploy-the-code)
+  - [init](#init)
+  - [validate](#validate)
+  - [plan](#plan)
+  - [apply](#apply)
   - [Verify in the AWS Console](#verify-in-the-aws-console)
 - [Terraform 102](#terraform-102)
-  - [Modifying the deployment](#modifying-the-deployment)
-  - [Destroying the deployment](#destroying-the-deployment)
+  - [Modify the deployment](#modify-the-deployment)
+  - [Destroy the deployment](#destroy-the-deployment)
   - [Apply or destroy without waiting for confirmation](#apply-or-destroy-without-waiting-for-confirmation)
 - [Application](#application)
-  - [First deployment](#first-deployment)
+  - [First deployment: Lambda](#first-deployment-lambda)
   - [Storing the results in an Amazon S3 Bucket](#storing-the-results-in-an-amazon-s3-bucket)
-  - [Why it failed](#why-it-failed)
   - [Automating the execution of the Lambda function with EventBridge](#automating-the-execution-of-the-lambda-function-with-eventbridge)
   - [Notifying the users when the execution completes](#notifying-the-users-when-the-execution-completes)
-  - [Remove all hardcoded values and turn them into variables](#remove-all-hardcoded-values-and-turn-them-into-variables)
-  - [Advanced Terraform concepts](#advanced-terraform-concepts)
+  - [Remove all hardcoded values and turning them into variables](#remove-all-hardcoded-values-and-turning-them-into-variables)
+- [More Terraform concepts](#more-terraform-concepts)
 
 
 # The application we'll build
@@ -104,7 +103,7 @@ Then type `:q` and press `ENTER` to quit the editor.
 
 # Terraform 101
 
-## initialize terraform
+## init
 
 The `terraform init` command initializes a working directory containing configuration files and installs plugins for required providers.
 
@@ -115,7 +114,7 @@ The `terraform init` command initializes a working directory containing configur
 <img src="img/terraform-init.png">
 
 
-## validate the code 
+## validate
 
 The terraform validate command validates the configuration files in a directory. It does not validate remote services, such as remote state or provider APIs.
 
@@ -123,7 +122,7 @@ The terraform validate command validates the configuration files in a directory.
     terraform validate
 ```
 
-## plan the deployment
+## plan
 
 The `terraform plan` command creates an execution plan with a preview of the changes that Terraform will make to your infrastructure.
 
@@ -131,7 +130,7 @@ The `terraform plan` command creates an execution plan with a preview of the cha
     terraform plan
 ```
 
-## deploy the code
+## apply
 
 The `terraform apply` command executes the actions proposed in a Terraform plan to create, update, or destroy infrastructure.
 
@@ -149,7 +148,7 @@ Go to the AWS Console and search for the Lambda function.
 
 # Terraform 102
 
-## Modifying the deployment
+## Modify the deployment
 
 Go back to the ``main.tf`` file and change the name of your function.
 
@@ -165,7 +164,7 @@ And if everything looks good, apply the changes:
     terraform apply
 ```
 
-## Destroying the deployment 
+## Destroy the deployment
 
 ```console 
     terraform destroy
@@ -189,7 +188,7 @@ Add the ``-auto-approve`` option:
 
 # Application 
 
-## First deployment
+## First deployment: Lambda
 
 The code base is setup to deploy a Lambda function called `launch-window`.
 
@@ -293,7 +292,7 @@ Re-test the function.
 
 <img src="img/lambda-error.png">
 
-## Why it failed
+*Why it failed*
 
 It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
 AWS follows the principle of least privilege: every resource (user, bucket, function, etc.) has no 
@@ -538,7 +537,7 @@ DONE!
 
 
 
-## Remove all hardcoded values and turn them into variables
+## Remove all hardcoded values and turning them into variables
 
 Hardcoded values are always bad practice.
 
@@ -604,7 +603,7 @@ Inside the definition of the Lambda function (`resource "aws_lambda_function" "l
 ```
 
 
-## Advanced Terraform concepts
+# More Terraform concepts
 
 See [TERRAFORM.md](TERRAFORM.md)
 
