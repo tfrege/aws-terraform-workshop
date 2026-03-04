@@ -111,7 +111,7 @@ The `terraform init` command initializes a working directory containing configur
     terraform init
 ```
 
-<img src="img/terraform-init.png">
+<img src="img/terraform-init.png" style="border: 1px solid grey;">
 
 
 ## validate
@@ -197,12 +197,12 @@ Once the `apply` completes, go to the `AWS Console --> Lambda --> Functions` and
 Create a new Test Event in order to execute the function.
 
 
-<img src="img/lambda-create-test-1.png">
+<img src="img/lambda-create-test-1.png" style="border: 1px solid grey;">
 
 Assign a name to the test:
 
 
-<img src="img/lambda-create-test-2.png" width=600>
+<img src="img/lambda-create-test-2.png" width=600 style="border: 1px solid grey;">
 
 
 For this application, there is no need to change the content of the JSON given by default, since the function won't use it.
@@ -211,21 +211,21 @@ Click `Save` and then click `Invoke`.
 
 Verify the function executes successfully.
 
-<img src="img/lambda-test-execution-1.png">
+<img src="img/lambda-test-execution-1.png" style="border: 1px solid grey;">
 
 
 Another way to verify this, is to open its CloudWatch log. In the tab `Monitor`, click `View CloudWatch logs`. It will open a new window.
 
-<img src="img/lambda-monitor-tab.png">
+<img src="img/lambda-monitor-tab.png" style="border: 1px solid grey;">
 
 
 It will show the Lambda's CloudWatch LogGroup, with a list of logs: one for each execution.
 
 
-<img src="img/cloudwatch-log-streams.png">
+<img src="img/cloudwatch-log-streams.png" style="border: 1px solid grey;">
 
 
-<img src="img/cloudwatch-log-events.png">
+<img src="img/cloudwatch-log-events.png" style="border: 1px solid grey;">
 
 
 
@@ -290,7 +290,7 @@ Re-test the function.
 
 :x: It fails
 
-<img src="img/lambda-error.png">
+<img src="img/lambda-error.png" style="border: 1px solid grey;">
 
 
 > [!CAUTION] 
@@ -449,7 +449,7 @@ Open the file `terraform --> lambda --> handler.py` file and remove the comments
 
 * `sns = boto3.client("sns")` 
 * `DONE_TOPIC_ARN = os.environ["DONE_TOPIC_ARN"]`
-* Lines 101 - 125
+* Lines 119 - 169
 
 Save the changes.
 
@@ -536,17 +536,16 @@ Save the changes and re-deploy:
 ```
 
 Wait until it completes, go back to the Console, and verify the changes are there:
-* A new SNS topic has been created
+* A new SNS topic has been created (search for `SNS` or `Simple Notification Service`, click on `Topics`)
 * The SNS topic has a subscriber with your e-mail
-* You got an e-mail asking to confirm to the subscription
-* The Lambda code contains the new block 
+* You got an e-mail asking to confirm to the subscription (remember to confirm the subscription in order to get the notifications)
+* The Lambda code contains the new block
 
 
-<img src="img/sns-subscription-email.png">
+<img src="img/sns-subscription-email.png" style="border: 1px solid grey;">
 
-Remember to confirm the subscription in order to get the notifications:
 
-<img src="img/sns-subscription-confirmation.png">
+<img src="img/sns-subscription-confirmation.png" width="70%" style="border: 1px solid grey;">
 
  
 Re-test the function, or wait for EventBridge to trigger it.
