@@ -13,12 +13,15 @@ This small application calculates a GO/NO GO for launching a -----------
 # Set up your environment 
 
 ## Login to the AWS Console 
+* Login into the Console with the credentials provided.
+* Go to EC2 and locate the instance with your name.
 
 
 ## Start a session in the EC2 instance 
+Select the instance and click `Connect`. 
+Session Manager should be enabled and should allow you to connect.
 
-
-And make sure you are in the $HOME directory:
+Once inside the instance, make sure you are in the $HOME directory:
 
 ```bash 
     cd $HOME
