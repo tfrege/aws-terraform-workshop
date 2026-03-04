@@ -303,6 +303,14 @@ Re-test the function.
 </div>
 </p>
 
+[!Why it failed]
+It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
+    AWS follows the principle of least privilege: every resource (user, bucket, function, etc.), by default, 
+    has no permissions to invoke another or perform changes. Any action must be explicitly allowed.
+    To make this happen, AWS uses `IAM Roles` and `IAM Policies`. We already created one for the Lambda function.
+
+    
+
 Go to the Terraform repo and open the file `terraform --> main.tf` 
 
 Find the block `data "aws_iam_policy_document" "lambda_policy"` and add this block of code:
