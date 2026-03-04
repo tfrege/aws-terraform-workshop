@@ -23,7 +23,7 @@ Session Manager should be enabled and should allow you to connect.
 
 Once inside the instance, make sure you are in the $HOME directory:
 
-```bash 
+```console 
     cd $HOME
 ```
 
@@ -35,20 +35,15 @@ See [INSTALL.md](INSTALL.md)
 
 
 ## Get a copy of the base code
-For the purpose of this Workshop, the code is located in this S3 Bucket:
+For the purpose of this Workshop, the code is located in an Amazon S3 Bucket. Copy it to the EC2 running this command:
+(Terraform code can be directly executed from a GitHub or GitLab repo, more on that if time allows)
 
-```bash 
-aws-terraform-workshop
-```
-
-Copy it to the EC2 running this command:
-
-```bash
+```console
     aws s3 cp s3://aws-terraform-workshop/workshopsrc.zip .    
 ```
 
 And then unzip the file:
-```bash
+```console
     unzip workshopsrc.zip .
 ```
 
@@ -64,7 +59,7 @@ And then unzip the file:
 
 Open the file `main.tf`:
 
-```bash
+```console
 vi main.tf
 ```
 
@@ -87,7 +82,7 @@ Then type `:q` and press `ENTER` to quit the editor.
 
 The `terraform init` command initializes a working directory containing configuration files and installs plugins for required providers.
 
-```bash 
+```console 
     terraform init
 ```
 
@@ -98,7 +93,7 @@ The `terraform init` command initializes a working directory containing configur
 
 The terraform validate command validates the configuration files in a directory. It does not validate remote services, such as remote state or provider APIs.
 
-```bash 
+```console 
     terraform validate
 ```
 
@@ -106,7 +101,7 @@ The terraform validate command validates the configuration files in a directory.
 
 The `terraform plan` command creates an execution plan with a preview of the changes that Terraform will make to your infrastructure.
 
-```bash 
+```console 
     terraform plan
 ```
 
@@ -114,7 +109,7 @@ The `terraform plan` command creates an execution plan with a preview of the cha
 
 The `terraform apply` command executes the actions proposed in a Terraform plan to create, update, or destroy infrastructure.
 
-```bash 
+```console 
     terraform apply
 ```
 
@@ -134,26 +129,26 @@ Go back to the ``main.tf`` file and change the name of your function.
 
 Before applying any change, run a plan to verify that only the name will be changed:
 
-```bash 
+```console 
     terraform plan
 ```
 
 And if everything looks good, apply the changes:
 
-```bash 
+```console 
     terraform apply
 ```
 
 ## Destroying the deployment 
 
-```bash 
+```console 
     terraform destroy
 ```
 
 Which is the equivalent of:
 
 
-```bash 
+```console 
     terraform apply -destroy
 ```
 
@@ -161,7 +156,7 @@ Which is the equivalent of:
 Add the ``-auto-approve`` option:
 
 
-```bash 
+```console 
     terraform apply -auto-approve
 ```
 
@@ -257,7 +252,7 @@ ARTIFACT_BUCKET          = aws_s3_bucket.artifacts.bucket
 
 Save the changes and re-deploy the solution:
 
-```bash 
+```console 
     terraform apply -auto-approve
 ```
 
@@ -321,7 +316,7 @@ data "aws_iam_policy_document" "lambda_policy" {
 Save the changes and re-deploy:
 
 
-```bash 
+```console 
     terraform apply -auto-approve
 ```
 
@@ -400,7 +395,7 @@ resource "aws_iam_role_policy" "schedule_inline" {
 Save the changes and re-deploy:
 
 
-```bash 
+```console 
     terraform apply -auto-approve
 ```
 
@@ -493,7 +488,7 @@ In the block ``data "aws_iam_policy_document" "lambda_policy"``:
 Save the changes and re-deploy:
 
 
-```bash 
+```console 
     terraform apply -auto-approve
 ```
 
