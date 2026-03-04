@@ -21,6 +21,7 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
 - [Application](#application)
   - [First deployment: Lambda](#first-deployment-lambda)
   - [Storing the results in an Amazon S3 Bucket](#storing-the-results-in-an-amazon-s3-bucket)
+  - [Tip with Title](#tip-with-title)
   - [Automating the execution of the Lambda function with EventBridge](#automating-the-execution-of-the-lambda-function-with-eventbridge)
   - [Notifying the users when the execution completes](#notifying-the-users-when-the-execution-completes)
   - [Remove all hardcoded values and turning them into variables](#remove-all-hardcoded-values-and-turning-them-into-variables)
@@ -303,19 +304,9 @@ Re-test the function.
 </div>
 </p>
 
-[!Why it failed]
-
-> [!NOTE]  
-> Highlights information that users should take into account, even when skimming.
-
-> [!TIP]
-> Optional information to help a user be more successful.
-
-> [!IMPORTANT]  
-> Crucial information necessary for users to succeed.
-
-> [!WARNING]  
-> Critical content demanding immediate user attention due to potential risks.
+::: {.callout-tip}
+## Tip with Title
+asss
 
 > [!CAUTION] 
 > Why it failed
