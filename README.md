@@ -317,7 +317,8 @@ Re-test the function.
 > [!WARNING]  
 > Critical content demanding immediate user attention due to potential risks.
 
-> [!CAUTION] Why it failed
+> [!CAUTION] 
+> Why it failed
 > It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
     AWS follows the principle of least privilege: every resource (user, bucket, function, etc.), by default, 
     has no permissions to invoke another or perform changes. Any action must be explicitly allowed.
