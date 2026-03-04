@@ -1,26 +1,25 @@
-# Terraform 200
+Terraform 200
 
-- [Terraform 200](#terraform-200)
-  - [Format the code nicely](#format-the-code-nicely)
-  - [Ways to set values to the variables](#ways-to-set-values-to-the-variables)
-    - [variables.tf](#variablestf)
-    - [Execution time through the terminal](#execution-time-through-the-terminal)
-    - [terraform.tfvars](#terraformtfvars)
-  - [Tagging Resources](#tagging-resources)
-  - [Validations](#validations)
-  - [Modules](#modules)
-  - [Outputs](#outputs)
-  - [Functions](#functions)
-  - [Loops](#loops)
-  - [data and locals](#data-and-locals)
-  - [Environments](#environments)
-  - [Backend configuration](#backend-configuration)
-  - [Useful add-ons](#useful-add-ons)
-    - [checkov](#checkov)
-    - [terraform-docs](#terraform-docs)
+- [Format the code nicely](#format-the-code-nicely)
+- [Ways to set values to the variables](#ways-to-set-values-to-the-variables)
+  - [variables.tf](#variablestf)
+  - [Execution time through the terminal](#execution-time-through-the-terminal)
+  - [terraform.tfvars](#terraformtfvars)
+- [Tagging Resources](#tagging-resources)
+- [Validations](#validations)
+- [Modules](#modules)
+- [Outputs](#outputs)
+- [Functions](#functions)
+- [Loops](#loops)
+- [data and locals](#data-and-locals)
+- [Environments](#environments)
+- [Backend configuration](#backend-configuration)
+- [Useful add-ons](#useful-add-ons)
+  - [checkov](#checkov)
+  - [terraform-docs](#terraform-docs)
 
 
-## Format the code nicely
+# Format the code nicely
 
 
 ```bash 
@@ -28,9 +27,9 @@
 ```
 
 
-## Ways to set values to the variables
+# Ways to set values to the variables
 
-### variables.tf
+## variables.tf
 Set default values in each variable definition.
 
 ```hcl
@@ -47,7 +46,7 @@ variable "max_wind_kts" {
 }
 ```
 
-### Execution time through the terminal
+## Execution time through the terminal
 
 Overwrite any default value while executing the code (variables with no default set will be requested at run time):
 
@@ -55,7 +54,7 @@ Overwrite any default value while executing the code (variables with no default 
     terraform apply -var="project_name=launch-time" -var="max_wind_kts=25"
 ```
 
-### terraform.tfvars
+## terraform.tfvars
 
 It's a good practice to leave specific values out of the variables.tf
 
@@ -71,7 +70,7 @@ range_allowed        = "GREEN"
 ```
 
 
-## Tagging Resources
+# Tagging Resources
 
 Tag, always tag. Each AWS resource supports up to 50 {key, value} tags.
 
@@ -107,7 +106,7 @@ provider "aws" {
 
 You can combine default tags with specific tags for specific resources:
 ```hcl
-# This resource will inherit all the tags defined by its provider, plus get additional ones set
+ This resource will inherit all the tags defined by its provider, plus get additional ones set
 resource "aws_lambda_function" "launch_eval" {
   function_name = "${local.project_name}-launch-eval"
   role          = aws_iam_role.lambda_role.arn
@@ -115,18 +114,18 @@ resource "aws_lambda_function" "launch_eval" {
   tags = {
     Module      = "MissionOperations"
     Layer       = "Application"
-    CostCenter  = "67890"       # This means the default tag will be overwritren
+    CostCenter  = "67890"        This means the default tag will be overwritren
   }
 }
 ```
 
 
-## Validations
+# Validations
 
 Validations are good practice. You can validate the values your variables are taking:
 
 ```hcl
-# Validate a variable has a minimum of N chars
+ Validate a variable has a minimum of N chars
 variable "env" {
   type        = string
   description = "Environment (DEV, QA, PROD, etc.)"
@@ -136,7 +135,7 @@ variable "env" {
   }
 }
 
-# Validate a region belongs to a finite list
+ Validate a region belongs to a finite list
 variable "region" {
   type        = string
   default     = "us-east-1"
@@ -147,7 +146,7 @@ variable "region" {
   }
 }
 
-# Regex to validate a string is properly formatted. Specially useful when passing ARNs
+ Regex to validate a string is properly formatted. Specially useful when passing ARNs
 variable "kms_key_arn" {
   type        = string
   description = "ARN of the KMS key"
@@ -159,7 +158,7 @@ variable "kms_key_arn" {
   }
 }
 
-# List has at least 1 value
+ List has at least 1 value
 variable "sources_list" {
   type        = map(any)
   description = "List of objects where each element is a source to create."
@@ -169,7 +168,7 @@ variable "sources_list" {
   }
 }
 
-# The value belongs to a defined list of options
+ The value belongs to a defined list of options
 variable "archive_storage_class" {
   type        = string
   description = "Storage class to use for archival of files."
@@ -183,7 +182,7 @@ variable "archive_storage_class" {
 ```
 
 
-## Modules
+# Modules
 
 While you can have your entire code in one main.tf file, it is recommended to split it in different files,
 usually based on the type of resource that will be deployed:
@@ -227,7 +226,7 @@ Even better, you can have _modules_, and invoke each from the main.tf file (whic
 
 ```
 
-## Outputs
+# Outputs
 
 Similar to `variables.tf` which define the ingress values for a Terraform project, `outputs.tf` defines 
 the list of outputs. It is optional but useful when working with modules.
@@ -241,13 +240,13 @@ output "lambda_function_arn" {
 
 Passing the output of one module as the input of another:
 ```hcl
-# In ./modules/iam/role:
+ In ./modules/iam/role:
 output "iam_role_arn" {
   value       = aws_iam_role.new_role.arn
   description = "ARN of the new IAM Role."
 }
 
-# In main.tf, when invoking the modules:
+ In main.tf, when invoking the modules:
 
 module "lambdaRole" {
   source                    = "./modules/iam/role"
@@ -261,7 +260,7 @@ module "newLambda" {
 }
 ```
 
-## Functions 
+# Functions 
 Some examples of useful methods that can be used to transform variables.
 For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
 
@@ -291,12 +290,12 @@ For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
 | `tostring(value)` | Converts to string | `tostring(42)` → `"42"` |
 
 
-## Loops
+# Loops
 
 
 
 
-## data and locals
+# data and locals
 
 Data helps retrieve existing resources. Examples:
 * You need to know the ID of the AWS Account where the resources are being deployed,
@@ -309,18 +308,18 @@ Data helps retrieve existing resources. Examples:
 
 Working with AWS data:
 ```hcl
-# Look up the current AWS account identity
+ Look up the current AWS account identity
 data "aws_caller_identity" "current" {}
 
-# Look up the current AWS region
+ Look up the current AWS region
 data "aws_region" "current" {}
 
-# Look up the current AWS partition
+ Look up the current AWS partition
 data "aws_partition" "current" {}
 
-# In the resources provisioning:
+ In the resources provisioning:
 
-# To produce the name as "mybucket-1090392029-us-west-2". It helps secure unique identifiers.
+ To produce the name as "mybucket-1090392029-us-west-2". It helps secure unique identifiers.
 resource "aws_s3_bucket" "artifacts" {
     bucket = format("mybucket-%s-%s", data.aws_caller_identity.current.account_id, data.aws_region.current.name)
 }
@@ -363,8 +362,8 @@ resource "aws_lb" "alb" {
 ```hcl
 data "aws_lambda_function" "existing" {
   function_name = "name-of-your-existing-lambda"
-  # Optional: specify a qualifier (alias or version number)
-  # qualifier     = "$LATEST"
+   Optional: specify a qualifier (alias or version number)
+   qualifier     = "$LATEST"
 }
 
 output "the_function_memory_size" {
@@ -377,7 +376,7 @@ output "the_function_role" {
 ```
 
 
-## Environments
+# Environments
 Environments are excellent mechanisms to execute the same code base in different environments, and use
 a different .tfvars file for each, remembering to pass it at time of execution.
 
@@ -406,7 +405,7 @@ a different .tfvars file for each, remembering to pass it at time of execution.
 
 
 
-## Backend configuration
+# Backend configuration
 If used with the default configuration, Terraform creates and maintains the ``terraform.tfstate`` file in the 
 machine running Terraform, but this can lead to lost files (i.e. if the EC2 is terminated), or different versions 
 if multiple developers are running the same code.
@@ -416,13 +415,13 @@ Solution: Remote Backend.
 Terraform supports remote backends such as S3.
 
 
-## Useful add-ons
+# Useful add-ons
 
 See [ADDONS](ADDONS.md).
 
-### checkov
+## checkov
 [Checov](https://www.checkov.io/) is a great tool to scan your code and detect security vulnerabilities.
 
-### terraform-docs
+## terraform-docs
 Generates documentation for your Terraform code. It produces a better document if the variables and outputs
 are well documented.
