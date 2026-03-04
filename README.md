@@ -1,13 +1,10 @@
-# aws-terraform-workshop
+aws-terraform-workshop
 Workshop to learn the basics of AWS and Terraform while deploying a small serverless application.
 
-- [aws-terraform-workshop](#aws-terraform-workshop)
-- [The application we'll build](#the-application-well-build)
-- [Set up your environment](#set-up-your-environment)
-  - [Login to the AWS Console](#login-to-the-aws-console)
-  - [Start a session in the EC2 instance](#start-a-session-in-the-ec2-instance)
-  - [Install Terraform](#install-terraform)
-  - [Get a copy of the initial code](#get-a-copy-of-the-initial-code)
+- [Login to the AWS Console](#login-to-the-aws-console)
+- [Start a session in the EC2 instance](#start-a-session-in-the-ec2-instance)
+- [Install Terraform](#install-terraform)
+- [Get a copy of the initial code](#get-a-copy-of-the-initial-code)
 - [Terraform 101](#terraform-101)
   - [init](#init)
   - [validate](#validate)
@@ -23,11 +20,11 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
   - [Storing the results in an Amazon S3 Bucket](#storing-the-results-in-an-amazon-s3-bucket)
   - [Automating the execution of the Lambda function with EventBridge](#automating-the-execution-of-the-lambda-function-with-eventbridge)
   - [Notifying the users when the execution completes](#notifying-the-users-when-the-execution-completes)
-  - [Remove all hardcoded values and turning them into variables](#remove-all-hardcoded-values-and-turning-them-into-variables)
+  - [Remove all hardcoded values and turn them into variables](#remove-all-hardcoded-values-and-turn-them-into-variables)
 - [More Terraform concepts](#more-terraform-concepts)
 
 
-# The application we'll build
+ The application we'll build
 
 A mission team runs a periodic ‘launch window check’. The check evaluates a few constraints (wind, clouds, lightning, range status) against thresholds and outputs GO / NO-GO. The result is stored in S3 as an audit artifact, and the team gets an email when the run completes.
 
@@ -35,14 +32,14 @@ A mission team runs a periodic ‘launch window check’. The check evaluates a 
 
 
 
-# Set up your environment 
+ Set up your environment 
 
-## Login to the AWS Console 
+# Login to the AWS Console 
 * Login into the Console with the credentials provided.
 * Go to EC2 and locate the instance with your name.
 
 
-## Start a session in the EC2 instance 
+# Start a session in the EC2 instance 
 Select the instance and click `Connect`. 
 Session Manager should be enabled and should allow you to connect.
 
@@ -53,13 +50,13 @@ Once inside the instance, make sure you are in the $HOME directory:
 ```
 
 
-## Install Terraform
+# Install Terraform
 
 See [INSTALL.md](INSTALL.md)
 
 
 
-## Get a copy of the initial code
+# Get a copy of the initial code
 For the purpose of this Workshop, the code is located in an Amazon S3 Bucket. Copy it to the EC2 running this command:
 (Terraform code can be directly executed from a GitHub or GitLab repo, more on that if time allows)
 
@@ -247,9 +244,9 @@ Save the changes.
 Now open the `main.tf` file and add this block:
 
 ```hcl 
-# -----------------------------
-# S3 bucket for audit artifacts
-# -----------------------------
+ -----------------------------
+ S3 bucket for audit artifacts
+ -----------------------------
 resource "aws_s3_bucket" "artifacts" {
     bucket = lower("${local.name_prefix}-artifacts")
 }
@@ -367,9 +364,9 @@ We'll add an Event Bridge schedule that will execute the function every 5 minute
 Open the `main.tf` file and add this block:
 
 ```hcl 
-# -----------------------------
-# EventBridge 
-# -----------------------------
+ -----------------------------
+ EventBridge 
+ -----------------------------
 resource "aws_scheduler_schedule" "rule" {
   name                = "launch-schedule"
   group_name = "default"
@@ -378,7 +375,7 @@ resource "aws_scheduler_schedule" "rule" {
     mode = "OFF"
   }
 
-  schedule_expression = "rate(5 minutes)" # Or use an event_pattern
+  schedule_expression = "rate(5 minutes)"  Or use an event_pattern
 
   target {
     arn      = aws_lambda_function.launch_eval.arn
@@ -456,14 +453,14 @@ Save the changes.
 Now open the `main.tf` file and add this block (make sure to update your e-mail address):
 
 ```hcl 
-# -----------------------------
-# SNS Topic
-# -----------------------------
+ -----------------------------
+ SNS Topic
+ -----------------------------
 resource "aws_sns_topic" "done" {
     name = "${local.name_prefix}-done"
 }
 
-# Email subscriptions (require confirmation by clicking link in email)    
+ Email subscriptions (require confirmation by clicking link in email)    
 resource "aws_sns_topic_subscription" "done_email" {
     topic_arn = aws_sns_topic.done.arn
     protocol  = "email"
@@ -555,7 +552,7 @@ Re-test the function, or wait for EventBridge to trigger it.
 
 
 
-## Remove all hardcoded values and turning them into variables
+## Remove all hardcoded values and turn them into variables
 
 Hardcoded values are always bad practice.
 
