@@ -17,8 +17,8 @@ In the AWS Management account, create an IAM Role for GitHub to access the accou
 
 The role should have the following permissions:
 1. sts:AssumeRole
-2. ecr:GetAuthorizationToken
-3. s3:putObject
+2. ecr:GetAuthorizationToken3. 
+3. Any permission the Terraform code will need to properly create/update/read/destroy all resources
 
 ```yaml
 {
@@ -45,14 +45,7 @@ The role should have the following permissions:
             ]
         },
         {
-            "Sid": "AllowUploadToS3",
-            "Effect": "Allow",
-            "Action": [
-                "s3:PutObject"
-            ],
-            "Resource": [
-                "*"
-            ]
+            # All Permissions Needed
         }
     ]
 }
@@ -85,17 +78,12 @@ And the following trust policy:
 
 ## GitHub Repo
 
-
-![diagram.png](../img/github_actions_diagram.png)
-
 1. Create a repo in GitHub
 2. Store 3 secrets under Settings > Secrets and variables > Actions:
    * AWS_ASSUME_ROLE (stores the ARN of the Role created previously)
    * AWS_REGION (name of the region, i.e. us-east-1)
-   * S3_BUCKET_NAME (name of the S3 bucket where the zip file will be uploaded)
 
 ![github-secrets.png](../img/github_actions_secrets.png)
-
 
 3. Store the code in the repo inside a specific folder, like `source` or `src`.
 4. Create the file `.github/workflows/action.yml` with the following contents:
@@ -191,7 +179,7 @@ In the AWS Management account, create an IAM Role for GitHub to access the accou
 The role should have the following permissions:
 1. sts:AssumeRole
 2. ecr:GetAuthorizationToken
-3. s3:putObject
+3. Any permission the Terraform code will need to properly create/update/read/destroy all resources
 
 ```yaml
 {
@@ -218,14 +206,7 @@ The role should have the following permissions:
             ]
         },
         {
-            "Sid": "AllowUploadToS3",
-            "Effect": "Allow",
-            "Action": [
-                "s3:PutObject"
-            ],
-            "Resource": [
-                "*"
-            ]
+            # All Permissions Needed
         }
     ]
 }
@@ -259,7 +240,6 @@ And the following trust policy:
 2. Store 3 secrets under Settings > CI/CD > Variables:
    * AWS_ASSUME_ROLE (stores the ARN of the Role created previously)
    * AWS_REGION (name of the region, i.e. us-east-1)
-   * S3_BUCKET_NAME (name of the S3 bucket where the zip file will be uploaded)
 3. Store the code in the repo inside a folder like `source` or `src`
 4. Create the file `.gitlab-ci.yml` with the following contents:
 
