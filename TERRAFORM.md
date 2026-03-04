@@ -106,7 +106,7 @@ provider "aws" {
 
 You can combine default tags with specific tags for specific resources:
 ```hcl
- This resource will inherit all the tags defined by its provider, plus get additional ones set
+# This resource will inherit all the tags defined by its provider, plus get additional ones set
 resource "aws_lambda_function" "launch_eval" {
   function_name = "${local.project_name}-launch-eval"
   role          = aws_iam_role.lambda_role.arn
@@ -114,7 +114,7 @@ resource "aws_lambda_function" "launch_eval" {
   tags = {
     Module      = "MissionOperations"
     Layer       = "Application"
-    CostCenter  = "67890"        This means the default tag will be overwritren
+    CostCenter  = "67890"       # This means the default tag will be overwritren
   }
 }
 ```
@@ -125,7 +125,7 @@ resource "aws_lambda_function" "launch_eval" {
 Validations are good practice. You can validate the values your variables are taking:
 
 ```hcl
- Validate a variable has a minimum of N chars
+# Validate a variable has a minimum of N chars
 variable "env" {
   type        = string
   description = "Environment (DEV, QA, PROD, etc.)"
@@ -135,7 +135,7 @@ variable "env" {
   }
 }
 
- Validate a region belongs to a finite list
+# Validate a region belongs to a finite list
 variable "region" {
   type        = string
   default     = "us-east-1"
@@ -146,7 +146,7 @@ variable "region" {
   }
 }
 
- Regex to validate a string is properly formatted. Specially useful when passing ARNs
+# Regex to validate a string is properly formatted. Specially useful when passing ARNs
 variable "kms_key_arn" {
   type        = string
   description = "ARN of the KMS key"
@@ -158,7 +158,7 @@ variable "kms_key_arn" {
   }
 }
 
- List has at least 1 value
+# List has at least 1 value
 variable "sources_list" {
   type        = map(any)
   description = "List of objects where each element is a source to create."
@@ -168,7 +168,7 @@ variable "sources_list" {
   }
 }
 
- The value belongs to a defined list of options
+# The value belongs to a defined list of options
 variable "archive_storage_class" {
   type        = string
   description = "Storage class to use for archival of files."
@@ -240,13 +240,13 @@ output "lambda_function_arn" {
 
 Passing the output of one module as the input of another:
 ```hcl
- In ./modules/iam/role:
+# In ./modules/iam/role:
 output "iam_role_arn" {
   value       = aws_iam_role.new_role.arn
   description = "ARN of the new IAM Role."
 }
 
- In main.tf, when invoking the modules:
+# In main.tf, when invoking the modules:
 
 module "lambdaRole" {
   source                    = "./modules/iam/role"
@@ -266,26 +266,21 @@ For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md).
 
 
 | Function | Description | Example |
------------- | :-----------: | -----------: |
-| Strings |
+------------ | ----------- | ----------- |
 | `format(spec, values...)` | Formats string using printf-style syntax | `format("Hello, %s!", "World")` → `"Hello, World!"` |
 | `lower(string)` | Converts string to lowercase | `lower("HELLO")` → `"hello"` |
 | `regex(pattern, string)` | Matches regex pattern in string | `regex("[a-z]+", "abc123")` → `"abc"` |
 | `replace(string, search, replace)` | Replaces occurrences in string | `replace("hello", "l", "L")` → `"heLLo"` |
 | `substr(string, offset, length)` | Extracts substring | `substr("hello", 1, 3)` → `"ell"` |
 | `upper(string)` | Converts string to uppercase | `upper("hello")` → `"HELLO"` |
-| Numeric |
 | `ceil(number)` | Rounds up to nearest integer | `ceil(4.3)` → `5` |
 | `max(numbers...)` | Returns maximum value | `max(5, 12, 9)` → `12` |
 | `min(numbers...)` | Returns minimum value | `min(5, 12, 9)` → `5` |
-| Collections |
 | `flatten(list)` | Flattens nested lists | `flatten([[1,2], [3,4]])` → `[1,2,3,4]` |
 | `sort(list)` | Sorts list alphabetically | `sort(["c", "a", "b"])` → `["a", "b", "c"]` |
 | `sum(list)` | Sums numeric list | `sum([1, 2, 3])` → `6` |
-| Date and time |
 | `formatdate(format, timestamp)` | Formats timestamp | `formatdate("YYYY-MM-DD", timestamp())` → `"2024-01-15"` |
 | `timestamp()` | Returns current timestamp | `timestamp()` → `"2024-01-15T10:30:00Z"` |
-| Type Conversion |
 | `tonumber(value)` | Converts to number | `tonumber("42")` → `42` |
 | `tostring(value)` | Converts to string | `tostring(42)` → `"42"` |
 
