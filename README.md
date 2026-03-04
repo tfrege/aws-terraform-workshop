@@ -72,7 +72,7 @@ And then unzip the file:
     unzip workshopsrc.zip .
 ```
 
-*Repo structure*
+**Repo structure**
 
 ```
 .
@@ -550,7 +550,8 @@ Wait until it completes, go back to the Console, and verify the changes are ther
  
 Re-test the function, or wait for EventBridge to trigger it.
 
-DONE!
+
+:partying_face: **DONE!**
 
 
 
