@@ -243,9 +243,9 @@ Save the changes.
 Now open the `main.tf` file and add this block:
 
 ```hcl 
- -----------------------------
- S3 bucket for audit artifacts
- -----------------------------
+# -----------------------------
+# S3 bucket for audit artifacts
+# -----------------------------
 resource "aws_s3_bucket" "artifacts" {
     bucket = lower("${local.name_prefix}-artifacts")
 }
@@ -363,9 +363,9 @@ We'll add an Event Bridge schedule that will execute the function every 5 minute
 Open the `main.tf` file and add this block:
 
 ```hcl 
- -----------------------------
- EventBridge 
- -----------------------------
+# -----------------------------
+# EventBridge 
+# -----------------------------
 resource "aws_scheduler_schedule" "rule" {
   name                = "launch-schedule"
   group_name = "default"
@@ -452,9 +452,9 @@ Save the changes.
 Now open the `main.tf` file and add this block (make sure to update your e-mail address):
 
 ```hcl 
- -----------------------------
- SNS Topic
- -----------------------------
+# -----------------------------
+# SNS Topic
+# -----------------------------
 resource "aws_sns_topic" "done" {
     name = "${local.name_prefix}-done"
 }
