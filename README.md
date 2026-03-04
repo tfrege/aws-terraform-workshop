@@ -555,7 +555,12 @@ Re-test the function, or wait for EventBridge to trigger it.
 
 Hardcoded values are always bad practice.
 
-Create a file named `variables.tf` and copy this code:
+Create a file named `variables.tf`:
+
+```command
+vi variables.tf
+```
+Press `I` to enter edition mode, and paste this code inside:
 
 ```hcl 
 variable "max_wind_kts" {
