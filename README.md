@@ -467,12 +467,12 @@ resource "aws_sns_topic" "done" {
 resource "aws_sns_topic_subscription" "done_email" {
     topic_arn = aws_sns_topic.done.arn
     protocol  = "email"
-    endpoint  = "your@email.com"
+    endpoint  = "your@email.com"    <-- CHANGE TO YOUR E-MAIL
 }
 ```
 
 
-Then, find the place where the Lambda's environment variables are defined, remove the "TBD" strings for `ARTIFACT_BUCKET` and replace it with the commented line next to it:
+Then, find the place where the Lambda's environment variables are defined, remove the "TBD" string for `DONE_TOPIC_ARN` and replace its value with the commented one:
 
 From:
 ```hcl
@@ -485,47 +485,57 @@ DONE_TOPIC_ARN           = aws_sns_topic.done.arn
 ```
 
 Also, let's make sure the Lambda will have the required permissions to publish messages to this new topic.
-In the block ``data "aws_iam_policy_document" "lambda_policy"``:
+In the block ``data "aws_iam_policy_document" "lambda_policy"``, add the `sns:Publish` permission:
 
 ```hcl 
-    data "aws_iam_policy_document" "lambda_policy" {
-        statement {
-            effect = "Allow"
-            actions = [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-            ]
-            resources = ["*"]
-        }
-
-        statement {
-            effect = "Allow"
-            actions = [
-            "s3:PutObject"
-            ]
-            resources = ["${aws_s3_bucket.artifacts.arn}/*"]
-        }
-
-        statement {
-            effect = "Allow"
-            actions = [
-            "sns:Publish"
-            ]
-            resources = [aws_sns_topic.done.arn]
-        }
+    statement {
+        effect = "Allow"
+        actions = [
+        "sns:Publish"
+        ]
+        resources = [aws_sns_topic.done.arn]
     }
 ```
 
+The entire block will look like this:
+
+```hcl 
+data "aws_iam_policy_document" "lambda_policy" {
+    statement {
+        effect = "Allow"
+        actions = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+        ]
+        resources = ["*"]
+    }
+
+    statement {
+        effect = "Allow"
+        actions = [
+        "s3:PutObject"
+        ]
+        resources = ["${aws_s3_bucket.artifacts.arn}/*"]
+    }
+
+    statement {
+        effect = "Allow"
+        actions = [
+        "sns:Publish"
+        ]
+        resources = [aws_sns_topic.done.arn]
+    }
+}
+```
 
 Save the changes and re-deploy:
-
 
 ```console
     terraform apply -auto-approve
 ```
 
-Wait until it completes, go back to the Console, verify the changes are there:
+Wait until it completes, go back to the Console, and verify the changes are there:
 * A new SNS topic has been created
 * The SNS topic has a subscriber with your e-mail
 * You got an e-mail asking to confirm to the subscription
