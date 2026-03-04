@@ -22,6 +22,7 @@ Workshop to learn the basics of AWS and Terraform while deploying a small server
   - [First deployment: Lambda](#first-deployment-lambda)
   - [Storing the results in an Amazon S3 Bucket](#storing-the-results-in-an-amazon-s3-bucket)
   - [Tip with Title](#tip-with-title)
+  - [Expand To Learn About Collapse](#expand-to-learn-about-collapse)
   - [Automating the execution of the Lambda function with EventBridge](#automating-the-execution-of-the-lambda-function-with-eventbridge)
   - [Notifying the users when the execution completes](#notifying-the-users-when-the-execution-completes)
   - [Remove all hardcoded values and turning them into variables](#remove-all-hardcoded-values-and-turning-them-into-variables)
@@ -304,10 +305,22 @@ Re-test the function.
 </div>
 </p>
 
+::: {.callout-note}
+Note that there are five types of callouts, including:
+`note`, `warning`, `important`, `tip`, and `caution`.
+:::
+
 ::: {.callout-tip}
 ## Tip with Title
-asss
 
+This is an example of a callout with a title.
+:::
+
+::: {.callout-caution collapse="true"}
+## Expand To Learn About Collapse
+
+This is an example of a 'folded' caution callout that can be expanded by the user. You can use `collapse="true"` to collapse it by default or `collapse="false"` to make a collapsible callout that is expanded by default.
+:::
 > [!CAUTION] 
 > Why it failed
 > It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
