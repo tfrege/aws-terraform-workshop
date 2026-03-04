@@ -294,7 +294,7 @@ Re-test the function.
 
 
 > [!CAUTION] 
-> Why it failed
+> **Why it failed**
 > It failed because, even though Lambda can interact well with S3, it needs the permissions to do it.
     AWS follows the principle of least privilege: every resource (user, bucket, function, etc.), by default, 
     has no permissions to invoke another or perform changes. Any action must be explicitly allowed.
