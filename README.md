@@ -426,7 +426,7 @@ Save the changes and re-deploy:
 
  You can wait for the 5 mins to pass.
 
- One way to validate the Lambda has been executed is looking at `CloudWatch logs`:
+ One way to validate the Lambda has been executed is looking at `CloudWatch logs`.
 
 
 

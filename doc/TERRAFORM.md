@@ -5,6 +5,7 @@ Terraform 200
 - [Ways to set values to the variables](#ways-to-set-values-to-the-variables)
   - [variables.tf](#variablestf)
   - [Execution time through the terminal](#execution-time-through-the-terminal)
+  - [Assigning OS Environment variables](#assigning-os-environment-variables)
   - [terraform.tfvars](#terraformtfvars)
 - [Tagging Resources](#tagging-resources)
 - [Validations](#validations)
@@ -106,7 +107,7 @@ provider "google" {
 # Format the code nicely
 
 
-```bash 
+```command 
     terraform fmt -recursive
 ```
 
@@ -134,8 +135,17 @@ variable "max_wind_kts" {
 
 Overwrite any default value while executing the code (variables with no default set will be requested at run time):
 
-```bash 
+```command 
     terraform apply -var="project_name=launch-time" -var="max_wind_kts=25"
+```
+
+## Assigning OS Environment variables
+
+The environment variable must start with `TF_VAR_` and follow with the name defined in the code:
+
+```command
+export TF_VAR_project_name="launch-time"
+export TF_VAR_max_wind_kts=25
 ```
 
 ## terraform.tfvars
@@ -347,7 +357,7 @@ module "newLambda" {
 
 # Built-in Functions 
 Some examples of useful methods that can be used to transform variables.
-For full details, see [TERRAFORMFUNCTIONS](TERRAFORMFUNCTIONS.md) and the [Official Terraform website](https://developer.hashicorp.com/terraform/language/functions).
+For full details, see [TERRAFORMFUNCTIONS](./doc/TERRAFORM-FUNCTIONS.md) and the [Official Terraform website](https://developer.hashicorp.com/terraform/language/functions).
 
 
 | Function | Description | Example |
@@ -493,25 +503,25 @@ output "the_function_role" {
 Environments are excellent mechanisms to execute the same code base in different environments, and use
 a different .tfvars file for each, remembering to pass it at time of execution.
 
-```bash
+```command 
     terraform workspace list
 ```
 
 
-```bash
+```command 
     terraform workspace new dev
 ```
 
-```bash
+```command 
     terraform workspace new qa
 ```
 
-```bash
+```command 
     terraform workspace select dev
     terraform apply -var-file="vars/dev.tfvars"    
 ```
 
-```bash
+```command 
     terraform workspace select qa
     terraform apply -var-file="vars/qa.tfvars"    
 ```
