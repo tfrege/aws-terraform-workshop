@@ -2,31 +2,27 @@
 
 ## Terraform
 
-```bash
+```command 
 sudo dnf update -y
 ```
 
-```bash
+```command 
 sudo dnf install -y yum-utils
 ```
 
 Add the official HashiCorp repository for Amazon Linux:
 
-```bash
+```command 
 sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
 ```
 
 
-```bash
+```command 
 sudo dnf install -y terraform
 ```
 
 Verify the installation:
 
-```bash
+```command 
 terraform -version
-```
-
-
-```bash
 ```
