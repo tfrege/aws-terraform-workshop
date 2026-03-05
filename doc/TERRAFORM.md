@@ -349,7 +349,7 @@ output "lambda_function_arn" {
 
 Passing the output of one module as the input of another:
 ```hcl
-# In ./modules/iam/role:
+# In ./modules/iam/role/outputs.tf:
 output "iam_role_arn" {
   value       = aws_iam_role.new_role.arn
   description = "ARN of the new IAM Role."
@@ -435,7 +435,7 @@ resource "aws_instance" "server" {
 
 # data and locals
 
-Data helps retrieve existing resources. Examples:
+`data` helps retrieve existing resources. Examples:
 * You need to know the ID of the AWS Account where the resources are being deployed,
 * You need the AWS region
 * The AWS partition (aws or aws-us-gov)
@@ -510,6 +510,55 @@ output "the_function_memory_size" {
 
 output "the_function_role" {
   value = data.aws_lambda_function.existing.role
+}
+```
+
+`locals` help create internal variables from calculations/formatting of others. Every module can
+have its own `locals` defined:
+
+```hcl
+locals {
+  name_suffix = "${var.project_name}-${var.environment}"  
+  function_name = "lambda-${local.name_suffix}" 
+  bucket_name = "s3-${local.name_suffix}"
+}
+
+# And to use them in the provisioning of resources:
+resource "aws_lambda_function" "launch_eval" {
+  provider      = aws.aws_qa_account
+  function_name = local.function_name
+  role          = aws_iam_role.lambda_role.arn
+}
+
+resource "aws_s3_bucket" "artifacts" {
+    bucket = local.bucket_name
+}
+```
+
+Or to create more complex variables:
+
+```hcl
+# In variables.tf, a list of ec2 instances to create:
+variable "instance_names" {
+  type    = list(string)
+  default = ["web-1", "db-1", "cache-1"]
+}
+
+# In main.tf or locals.tf, the creation of the list of names:
+locals {
+  # Create a new list with a prefix added to each name
+  prefixed_names = [for name in var.instance_names : "project-${name}"]
+}
+
+# Now the creation of the EC2s:
+resource "aws_instance" "basic_instances" {
+  count = length(local.prefixed_names) # Loop based on the number of elements in the list
+
+  # Other EC2 attributes
+
+  tags = {
+    Name = local.prefixed_names[count.index]
+  }
 }
 ```
 
