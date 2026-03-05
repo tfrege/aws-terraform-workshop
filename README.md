@@ -474,7 +474,7 @@ resource "aws_sns_topic" "done" {
     name = "${local.name_prefix}-done"
 }
 
- Email subscriptions (require confirmation by clicking link in email)    
+# Email subscriptions (require confirmation by clicking link in email)    
 resource "aws_sns_topic_subscription" "done_email" {
     topic_arn = aws_sns_topic.done.arn
     protocol  = "email"
