@@ -5,7 +5,7 @@ Terraform 200
 - [Ways to set values to the variables](#ways-to-set-values-to-the-variables)
   - [variables.tf](#variablestf)
   - [Execution time through the terminal](#execution-time-through-the-terminal)
-  - [Assigning OS Environment variables](#assigning-os-environment-variables)
+  - [OS Environment variables](#os-environment-variables)
   - [terraform.tfvars](#terraformtfvars)
 - [Tagging Resources](#tagging-resources)
 - [Validations](#validations)
@@ -139,7 +139,7 @@ Overwrite any default value while executing the code (variables with no default 
     terraform apply -var="project_name=launch-time" -var="max_wind_kts=25"
 ```
 
-## Assigning OS Environment variables
+## OS Environment variables
 
 The environment variable must start with `TF_VAR_` and follow with the name defined in the code:
 
@@ -185,8 +185,7 @@ Terraform supports assigning default tags to all resources of a project. These m
 
 ```hcl
 provider "aws" {
-  profile = "default"
-  region  = "us-west-1"
+  region  = "us-east-1"
 
   default_tags {
     tags = {
@@ -208,7 +207,7 @@ resource "aws_lambda_function" "launch_eval" {
   tags = {
     Module      = "MissionOperations"
     Layer       = "Application"
-    CostCenter  = "67890"       # This means the default tag will be overwritren
+    CostCenter  = "67890"       # This means the default tag will be overwritten for this resource
   }
 }
 ```
@@ -318,13 +317,28 @@ Even better, you can have _modules_, and invoke each from the main.tf file (whic
 ├────────── main.tf
 ├────────── outputs.tf
 ├────────── variables.tf
-
 ```
+
+The `main.tf` in the root folder is known as the **root module** and is the one that invokes the others:
+
+```hcl
+module "newLambda" {
+  source                    = "./modules/lambda"
+  name                      = format("%s-%s-lambda", var.project_name, var.environment)
+  iam_role                  = module.lambdaRole.iam_role_arn
+}
+
+module "newBucket" {
+  source                    = "./modules/s3"
+  name                      = format("%s-%s", var.project_name, var.environment)
+}
+```
+
 
 # Outputs
 
 Similar to `variables.tf` which define the ingress values for a Terraform project, `outputs.tf` defines 
-the list of outputs. It is optional but useful when working with modules.
+the list of outputs. It is optional, but useful when working with modules.
 
 ```hcl
 output "lambda_function_arn" {
@@ -356,6 +370,7 @@ module "newLambda" {
 ```
 
 # Built-in Functions 
+
 Some examples of useful methods that can be used to transform variables.
 For full details, see [TERRAFORMFUNCTIONS](./doc/TERRAFORM-FUNCTIONS.md) and the [Official Terraform website](https://developer.hashicorp.com/terraform/language/functions).
 
