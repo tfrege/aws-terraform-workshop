@@ -368,7 +368,7 @@ resource "aws_scheduler_schedule" "rule" {
     mode = "OFF"
   }
 
-  schedule_expression = "rate(5 minutes)"  Or use an event_pattern
+  schedule_expression = "rate(5 minutes)"  # Or use an event_pattern: cron(* * * * * *)
 
   target {
     arn      = aws_lambda_function.launch_eval.arn
@@ -414,6 +414,27 @@ resource "aws_iam_role_policy" "schedule_inline" {
   policy = data.aws_iam_policy_document.schedule_policy.json
 }
 ```
+
+For the cron job: event patterns can also be specified as follows:
+```bash
+* * * * * *
+- - - - - -
+| | | | | |
+| | | | | +--- Year (2026+)
+| | | | +----- Day of week (0 - 7) (Sunday is 0 or 7)
+| | | +------- Month (1 - 12)
+| | +--------- Day of month (1 - 31)
+| +----------- Hour (0 - 23)
++------------- Minute (0 - 59)
+```
+
+Examples:
+```bash
+cron(0 5 1 * ? *)   # Execute every 1st of the month at 5am GMT
+cron(0/15 8-17 * * 1 *)   # Execute every 15 mins on Mondays from 8am to 5pm GMT
+cron(* * 1,10,20,30 * ? *)   # Execute every minute of every hour on the 1st, 10th, 20th and 30th of the month
+```
+
 
 Save the changes and re-deploy:
 
